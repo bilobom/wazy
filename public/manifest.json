@@ -1,0 +1,15 @@
+{
+  "background_color": "#FFF",
+  "display": "standalone",
+  "name": "rgrid",
+  "short_name": "rgrid",
+  "version": "com.goup.ritec.rgrid",
+  "icons": [
+    {
+      "src": "www/img/rgrid.png",
+      "type": "image/png",
+      "sizes": "undefinedxundefined"
+    }
+  ],
+  "start_url": "index.html"
+}

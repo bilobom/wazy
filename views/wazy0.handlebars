@@ -1,0 +1,100 @@
+
+
+<link rel="stylesheet" href="/stylesheets/topnav.css" />
+
+
+
+
+<div id="particles-js"></div>
+<script type="text/javascript" src="/javascripts/particles.min.js"></script>
+<script >
+/* particlesJS.load(@dom-id, @path-json, @callback (optional)); */
+particlesJS.load('particles-js', '../particlesjs-config.json', function() {
+});
+</script>
+
+<div id="logo" class="col-xs-2 col-sm-3 col-lg-4" >
+  <img src="/images/rgrid.png" class="img-responsive" style="width: inherit" />
+</div>
+
+
+<div class="topnav">
+  <select class="form-control-sm" id="select-codec">
+    <option value="vp8">VP8</option>
+    <option value="vp9">VP9</option>
+    <option value="h264">H264</option>
+  </select>
+
+  <select  class="form-control-sm"  id="select-resolution">
+    <option value="full-hd">Full HD</option>
+    <option value="Hd">HD</option>
+    <option value="default">Default</option>
+  </select>
+
+  <div class="login-container">
+    <form action="/action_page.php">
+      <input type="text" id="room-id"  placeholder="room" autocorrect=off autocapitalize=off >
+      <input type="password" placeholder="password" id="room-password" autocomplete=off >
+      <button type="button"  id="leave-room" class="btn btn-secondary">Leave</button>
+      <button type="button"  id="open-room" class="btn btn-success">Meet</button>
+    </form>
+  </div>
+</div>
+
+
+
+<div id="video">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <!-- Local Stream -->
+      <div class="local-video-wrap">
+        <div class="local-video" id="local-vid"></div>
+      </div>
+      <!-- remote Stream -->
+      <div class="remote-video-wrap">
+        <div class="remote-video" id="remote-vid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<div id="messages">
+    <div class="panel panel-default">
+      <ul class="list-group" >
+          <li class="list-group-item">
+              <div class="input-group">
+                <span class="input-group-btn">
+                  <button class="btn btn-default direct-user"  type="button">@</button>
+                </span>
+                <input type="text" class="form-control message-text" id="input-text" autocomplete="on" placeholder="Type your message here" />
+                <span class="input-group-btn">
+                  <button class="btn btn-default" id="sendMessage">Send!</button>
+                </span>
+              </div>
+          </li>
+      </ul>
+    </div>
+</div>
+
+
+
+
+
+
+
+<script type="text/javascript" src="cordova.js"></script>
+<script type="text/javascript" src="javascripts/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="javascripts/DetectRTC.js"></script>
+<script type="text/javascript" src="javascripts/popper.js"></script>
+<script type="text/javascript" src="javascripts/bootstrap.js"></script>
+<script type="text/javascript" src="javascripts/index.js"></script>
+<script type="text/javascript" src="javascripts/socket.io.js"></script>
+<script type="text/javascript" src="javascripts/RTCMultiConnection.js"></script>
+<script type="text/javascript" src="javascripts/FileBufferReader.js"></script>
+<script type="text/javascript" src="javascripts/getHTMLMediaElement.js"></script>
+<script type="text/javascript" src="javascripts/getStats.js"></script>
+<script type="text/javascript" src="javascripts/adapter.js"></script>
+<script type="text/javascript" src="javascripts/MediaStreamRecorder.js"></script>

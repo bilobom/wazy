@@ -1,0 +1,143 @@
+/*
+  ##Device = Desktops
+  ##Screen = 1281px to higher resolution desktops
+*/
+
+body {
+  background-color: #e0e0e0;
+}
+
+form {
+  margin-bottom: 0;
+}
+.highlight-white{
+  background-color: white;
+}
+.clippy {
+    margin-top: -3px;
+    position: relative;
+    top: 3px;
+}
+
+#container {
+  max-width: auto;
+  margin: 0px auto;
+  padding: 15px;
+}
+
+footer {
+  clear: both;
+  padding: 20px 0 0;
+  text-align: center;
+  color: #999;
+}
+
+#logo {
+  display: inline-block;
+  font-size: 22px;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+#logo a {
+  color: black;
+}
+
+@media (min-width: 1281px) {
+
+  #logo{
+    left:20%;
+  }
+
+  form{
+    left:15%;
+  }
+
+}
+
+/*
+  ##Device = Laptops, Desktops
+  ##Screen = B/w 1025px to 1280px
+*/
+
+@media (min-width: 1025px) and (max-width: 1280px) {
+
+  #logo{
+    left:20%;
+  }
+
+  form{
+    left:15%;
+  }
+
+}
+
+/*
+  ##Device = Tablets, Ipads (portrait)
+  ##Screen = B/w 768px to 1024px
+*/
+
+@media (min-width: 768px) and (max-width: 1024px) {
+
+  #logo{
+    left:15%;
+  }
+
+  form{
+    left:10%;
+  }
+
+
+}
+
+/*
+  ##Device = Tablets, Ipads (landscape)
+  ##Screen = B/w 768px to 1024px
+*/
+
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+
+  #logo{
+    left:15%;
+  }
+
+  form{
+    left:10%;
+  }
+
+
+}
+
+/*
+  ##Device = Low Resolution Tablets, Mobiles (Landscape)
+  ##Screen = B/w 481px to 767px
+*/
+
+@media (min-width: 481px) and (max-width: 767px) {
+
+  #logo{
+    left:0%;
+  }
+
+  form{
+    left:0%;
+  }
+
+
+}
+
+/*
+  ##Device = Most of the Smartphones Mobiles (Portrait)
+  ##Screen = B/w 320px to 479px
+*/
+
+@media (min-width: 320px) and (max-width: 480px) {
+
+  #logo{
+    left:0%;
+  }
+
+  form{
+    left:0%;
+  }
+
+}

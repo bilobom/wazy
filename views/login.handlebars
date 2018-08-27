@@ -1,0 +1,30 @@
+
+  <div id="particles-js"></div>
+  <script type="text/javascript" src="/javascripts/particles.min.js"></script>
+  <script >
+  /* particlesJS.load(@dom-id, @path-json, @callback (optional)); */
+  particlesJS.load('particles-js', '../particlesjs-config.json', function() {
+  });
+  </script>
+
+
+  <div id="logo" class="col-xs-4 col-sm-6 col-lg-7" >
+    <img src="/images/rgrid.png" class="img-responsive" style="width: inherit" />
+    <h1 class="text-light text-center"> Login</h1>
+  </div>
+
+  <!-- LOGIN FORM  -->
+  <form action="/login" method="post" class="col-xs-5 col-sm-7 col-lg-9" >
+      <div class="form-group">
+          <label class="text-light">Username</label>
+          <input type="text" class="form-control" placeholder="username" name="username">
+      </div>
+      <div class="form-group">
+          <label class="text-light">Password</label>
+          <input type="password" class="form-control" placeholder="Password" name="password">
+      </div>
+
+      <button type="submit" class="btn btn-success btn-lg ">Login <span class="fa fa-lock"></span></button>
+      <hr>
+      <p class="text-light">Don't have an account? <a href="/user/register">Register</a></p>
+  </form>
