@@ -96,7 +96,14 @@ function initSoket(){
 
 
   connection = new RTCMultiConnection();
+  
+  var iceServers = [];
 
+  iceServers.push({
+       urls: 'stun:stun.l.google.com:19302'
+  });
+
+connection.iceServers = iceServers;
   connection.enableLogs=true;
   connection.autoReDialOnFailure = true;
   connection.autoCloseEntireSession = true;
