@@ -207,8 +207,8 @@ function incammingCall(remoteUserId){
   roomid = remoteUser;
   document.getElementById('leave-room').disabled = false;
   enableAudioVideo(true);
-  connection.openOrJoin(userid);
-  //connection.renegotiate(remoteUserId);
+  //connection.openOrJoin(userid);
+  connection.addStream(connection.session,userid);
 }
 
 
