@@ -103,7 +103,7 @@ function initSoket(){
        urls: 'stun:stun.l.google.com:19302'
   });
 
-connection.iceServers = iceServers;
+  connection.iceServers = iceServers;
   connection.enableLogs=true;
   connection.autoReDialOnFailure = true;
   connection.autoCloseEntireSession = true;
