@@ -2,7 +2,6 @@
 
 <link rel="stylesheet" href="/stylesheets/topnav.css" />
 
-<input type="hidden" id="meetingRoom" value="">
 
 {{#if user}}
   <input type="hidden" id="userID" value={{user.username}} >
@@ -12,6 +11,14 @@
 
 
 <div id="particles-js"></div>
+<!--
+<script type="text/javascript" src="/javascripts/particles.min.js"></script>
+<script >
+/* particlesJS.load(@dom-id, @path-json, @callback (optional)); */
+particlesJS.load('particles-js', '../particlesjs-config.json', function() {
+});
+</script>
+-->
 
 
 
@@ -64,10 +71,6 @@
       </ul>
     </div>
 </div>
-
-
-
-
 
 
 

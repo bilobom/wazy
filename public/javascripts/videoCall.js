@@ -1,4 +1,5 @@
 
+
 //.................................................................
 //.RRRRRRRRRR..........GGGGGGGG....GRRRRRRRRR...III..IDDDDDDDD.....
 //.RRRRRRRRRRR........GGGGGGGGGG...GRRRRRRRRRR..III..IDDDDDDDDD....
@@ -22,9 +23,10 @@ var maxParticipantsAllowed = 1 ;
 var userid = $('input#userID').val() ;
 var remoteUser = '';
 
-var roomid = $('input#userID').val();
+var roomid = $('input#meetingRoom').val();
 
 
+var enableFileSharing = false ;
 var sessionParam = {
       audio: true,
       video: true,
@@ -37,12 +39,12 @@ var bandwidth = {
 }
 
 
+init();
 
-$(document).ready(function(){
-  if(connection) return;
-  initSoket();
-  RTCevents();
-
+function init(){
+  initRTCMultiConnection();
+  eventsRTC();
+  meet();
   // below method "keepCheckingForRoom" keeps checking for room until joins it
   (function keepCheckingForRoom() {
       if(!connection.receiveFirstRemoteStream) {
@@ -83,10 +85,10 @@ $(document).ready(function(){
       window.params = params;
   })();
 
-});
+}
 
 
-function initSoket(){
+function initRTCMultiConnection(){
 
   document.getElementById('leave-room').disabled = true;
   window.enableAdapter = true;
@@ -105,7 +107,7 @@ function initSoket(){
   connection.autoReDialOnFailure = true;
   connection.autoCloseEntireSession = true;
   //file sharing
-  connection.enableFileSharing = true;
+  connection.enableFileSharing = enableFileSharing;
   connection.sdpConstraints.mandatory = {
       OfferToReceiveAudio: true,
       OfferToReceiveVideo: true
@@ -121,87 +123,72 @@ function initSoket(){
 }
 
 
-function RTCevents(){
-  connection.onRoomFull = function(roomid) {
-    connection.attachStreams.forEach(function(stream) {
-       stream.stop();
-    });
+function eventsRTC(){
 
-      alert('There is a call going On');
-  };
+    connection.onRoomFull = function(roomid) {
+      closeConnection();
+      connection.attachStreams.forEach(function(stream) {
+         stream.stop();
+      });
 
-
-   connection.onstream = function(event) {
-       console.log(event);
-       if(event.type=='remote'){
-         remoteStream(event);
-       }else { //local
-          localStream(event);
-       }
-   };
-
-   connection.onstreamended = function(event) {
-       var mediaElement = document.getElementById(event.streamid);
-       if (mediaElement) {
-           mediaElement.parentNode.removeChild(mediaElement);
-       }
-   };
-
-   connection.openOrJoin( userid ,function() {
-     localStorage.setItem('rmc-room-id', this.value);
-   });
-
-   connection.onmessage = function(event) {
-       appendDIV(event);
-   };
-
-  connection.onMediaError = function(error, constraints) {
-         reInitializeConnection();
-  };
+        alert('There is a call going On');
+    };
 
 
-  $("#input-text").keyup(function(e) {
-       //console.log(this.value);
-       if (e.keyCode != 13) return;
-       // removing trailing/leading whitespace
-       this.value = this.value.replace(/^\s+|\s+$/g, '');
-       if (!this.value.length) return;
-       if (remoteUser == null) {
-           alert("Please connect with a recipient");
-           return;
-       }else {
-           connection.send(this.value);
-           appendDIV(this.value);
-           this.value = '';
-       }
+     connection.onstream = function(event) {
+         console.log(event);
+         if(event.type=='remote'){
+           remoteStream(event);
+         }else { //local
+            localStream(event);
+         }
+     };
+
+     connection.onstreamended = function(event) {
+         var mediaElement = document.getElementById(event.streamid);
+         if (mediaElement) {
+             mediaElement.parentNode.removeChild(mediaElement);
+         }
+     };
+
+     connection.openOrJoin( userid ,function() {
+       localStorage.setItem('rmc-room-id', this.value);
      });
+
+     connection.onmessage = function(event) {
+         appendDIV(event);
+     };
+
+    connection.onMediaError = function(error, constraints) {
+           reInitializeConnection();
+    };
+
+
+    $("#input-text").keyup(function(e) {
+         //console.log(this.value);
+         if (e.keyCode != 13) return;
+         // removing trailing/leading whitespace
+         this.value = this.value.replace(/^\s+|\s+$/g, '');
+         if (!this.value.length) return;
+         if (remoteUser == null) {
+             alert("Please connect with a recipient");
+             return;
+         }else {
+             connection.send(this.value);
+             appendDIV(this.value);
+             this.value = '';
+         }
+       });
 
 }
 
 
-
-function call(){
-  inCall = true;
-  document.getElementById('leave-room').disabled = false;
-  remoteUser = document.getElementById('room-id').value;
-  roomid = remoteUser ;
+function meet(){
+  roomid = $('input#meetingRoom').val();
   connection.openOrJoin( roomid ,function() {
      localStorage.setItem('rmc-room-id', this.value);
   });
 }
-
-
-function inAnswer(remoteUserId){
-  //attacheStream(remoteUserId);
-}
-
-
-
-function incammingCall(remoteUserId){
-  remoteUser = remoteUserId;
-  document.getElementById('leave-room').disabled = false;
-}
-
 
 
 
@@ -227,10 +214,7 @@ function localStream(event){
 
 
 
-
 function remoteStream(event){
-  if(inRemoteStream) return;
-  inRemoteStream = true;
   console.log("****************** entered ***************************** ");
   connection.videosContainer = document.getElementById('remote-vid');
   var width = parseInt(connection.videosContainer.clientWidth);
@@ -267,8 +251,6 @@ function sendMessage(){
 
 
 
-
-
 function takePhoto(video) {
     var canvas = document.createElement('canvas');
     canvas.width = video.videoWidth || video.clientWidth;
@@ -283,12 +265,9 @@ function takePhoto(video) {
 
 
 function leaveRoom(){
-  alert('leave Room !!!');
    connection.attachStreams.forEach(function(localStream) {
        localStream.stop();
    });
-   connection.leave();
-   connection.closeSocket();
 
    reInitializeConnection();
 }
@@ -296,7 +275,11 @@ function leaveRoom(){
 
 
 function reInitializeConnection(){
+  alert('reInitializeConnection !!!');
   inRemoteStream = false;
+
+  connection.leave();
+  connection.closeSocket();
 
   document.getElementById('leave-room').disabled = true;
   document.getElementById('open-room').disabled = false;

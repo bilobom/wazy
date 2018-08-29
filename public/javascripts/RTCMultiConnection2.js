@@ -3,6 +3,9 @@
 
 window.RTCMultiConnection = function(roomid, forceOptions) {
 
+
+
+
     function SocketConnection(connection, connectCallback) {
         var parameters = '';
 
@@ -201,12 +204,12 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
                 }
 
                 //@R.GRID In Comming Call
-                if (connection.sessionid == $('input#userID').val()){
-                  if(confirm(message.sender+' Calling you !!!!')) {
-                    //incammingCall(message.sender);
-                  } else {
-                    return;
-                  }
+                if (confirm(message.sender+' Calling you !!!!')) {
+                  incammingCall(message.sender);
+                  enableAudioVideo(true);
+                  SocketConnection(connection);
+                } else {
+                  return;
                 }
 
                 var userPreferences = {
@@ -237,7 +240,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
                 };
 
                 connection.onNewParticipant(message.sender, userPreferences);
-                setTimeout(function(){incammingCall(message.sender);},3000)
+
                 return;
             }
 
@@ -398,6 +401,8 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
             }, 1000);
         });
     }
+
+
 
 
 
@@ -916,6 +921,11 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
             return connection.peers[remoteUserId] ? connection.peers[remoteUserId].streams : [];
         };
     }
+
+
+
+
+
 
 
     'use strict';
@@ -5039,6 +5049,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
         connection.onopen = function(event) {
             if (!!connection.enableLogs) {
                 console.info('Data connection has been opened between you & ', event.userid);
+                attacheStream(event.userid);
             }
         };
 
