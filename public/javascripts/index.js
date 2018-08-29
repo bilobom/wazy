@@ -229,9 +229,6 @@ function localStream(event){
 
 
 function remoteStream(event){
-  if(inRemoteStream) return;
-  inRemoteStream = true;
-  console.log("****************** entered ***************************** ");
   connection.videosContainer = document.getElementById('remote-vid');
   var width = parseInt(connection.videosContainer.clientWidth);
    var mediaElement = getHTMLMediaElement(event.mediaElement, {
@@ -296,7 +293,6 @@ function leaveRoom(){
 
 
 function reInitializeConnection(){
-  inRemoteStream = false;
 
   document.getElementById('leave-room').disabled = true;
   document.getElementById('open-room').disabled = false;
