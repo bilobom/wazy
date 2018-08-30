@@ -5045,6 +5045,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
         connection.onclose = function(event) {
             if (!!connection.enableLogs) {
                 console.warn('Data connection has been closed between you & ', event.userid);
+                reInitializeConnection();
             }
         };
 

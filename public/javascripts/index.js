@@ -31,12 +31,13 @@ var sessionParam = {
       data: true
 }
 
+
 var bandwidth = {
   audio: 510,  // 50 kbps
   video: 2000 // 256 kbps
 }
 
-
+var haveAnswer = false;
 
 $(document).ready(function(){
   if(connection) return;
@@ -188,10 +189,12 @@ function call(){
   connection.openOrJoin( roomid ,function() {
      localStorage.setItem('rmc-room-id', this.value);
   });
+  setTimeout(function(){if(!haveAnswer) reInitializeConnection();},30000);
 }
 
 
 function inAnswer(remoteUserId){
+  haveAnswer = true;
   //attacheStream(remoteUserId);
 }
 
@@ -264,8 +267,6 @@ function sendMessage(){
 
 
 
-
-
 function takePhoto(video) {
     var canvas = document.createElement('canvas');
     canvas.width = video.videoWidth || video.clientWidth;
@@ -281,11 +282,10 @@ function takePhoto(video) {
 
 function leaveRoom(){
   alert('leave Room !!!');
+   if(remoteUser) connection.deletePeer(remoteUser);
    connection.attachStreams.forEach(function(localStream) {
        localStream.stop();
    });
-   connection.leave();
-   connection.closeSocket();
 
    reInitializeConnection();
 }
@@ -293,6 +293,9 @@ function leaveRoom(){
 
 
 function reInitializeConnection(){
+
+  connection.leave();
+  connection.closeSocket();
 
   document.getElementById('leave-room').disabled = true;
   document.getElementById('open-room').disabled = false;
