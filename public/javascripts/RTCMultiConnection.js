@@ -203,7 +203,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
                 //@R.GRID In Comming Call
                 if (connection.sessionid == $('input#userID').val()){
                   if(confirm(message.sender+' Calling you !!!!')) {
-                    //incammingCall(message.sender);
+                     incammingCall(message.sender);
                   } else {
                     return;
                   }
@@ -237,7 +237,6 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
                 };
 
                 connection.onNewParticipant(message.sender, userPreferences);
-                setTimeout(function(){incammingCall(message.sender);},3000)
                 return;
             }
 
