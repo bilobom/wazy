@@ -7,7 +7,7 @@
 var app = require('../app').app;
 var debug = require('debug')('myfirstservermvc:server');
 var http = require('http');
-//var https = require('https');
+var https = require('https');
 var fs= require('fs')
 var path = require('path');
 var cluster= require('cluster');
@@ -35,7 +35,7 @@ var sslOption={
 }
 
 var server = http.createServer(app);
-//var server = https.createServer(sslOption,app);
+var server = https.createServer(sslOption,app);
 
 /**
  *  Run the server

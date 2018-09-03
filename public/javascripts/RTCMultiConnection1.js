@@ -209,6 +209,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
                   }
                 }
 
+
                 var userPreferences = {
                     extra: message.extra || {},
                     localPeerSdpConstraints: message.message.remotePeerSdpConstraints || {
@@ -220,9 +221,9 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
                         OfferToReceiveVideo: connection.session.oneway ? !!connection.session.video || !!connection.session.screen : connection.sdpConstraints.mandatory.OfferToReceiveVideo
                     },
                     isOneWay: typeof message.message.isOneWay !== 'undefined' ? message.message.isOneWay : !!connection.session.oneway || connection.direction === 'one-way',
-                    isDataOnly: typeof message.message.isDataOnly !== 'undefined' ? message.message.isDataOnly : isData(connection.session),
-                    dontGetRemoteStream: typeof message.message.isOneWay !== 'undefined' ? message.message.isOneWay : !!connection.session.oneway || connection.direction === 'one-way',
-                    dontAttachLocalStream: !!message.message.dontGetRemoteStream,
+                    isDataOnly: false,
+                    dontGetRemoteStream: false,
+                    dontAttachLocalStream: false,
                     connectionDescription: message,
                     successCallback: function() {
                         // if its oneway----- todo: THIS SEEMS NOT IMPORTANT.
@@ -235,6 +236,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
                         }
                     }
                 };
+
 
                 connection.onNewParticipant(message.sender, userPreferences);
                 return;
@@ -2154,6 +2156,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
         var mediaElement = document.createElement(isAudioOnly ? 'audio' : 'video');
 
         mediaElement.srcObject = stream;
+        // stream Controles
         mediaElement.controls = true;
 
         // http://goo.gl/WZ5nFl
@@ -5190,7 +5193,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
                       }, (session.audio || session.video) && !isAudioPlusTab(connection) ? connection.invokeGetUserMedia(null, gumCallback) : gumCallback);
                   });
               } else if (session.audio || session.video) {
-                 connection.invokeGetUserMedia(null, gumCallback);
+                  connection.invokeGetUserMedia(null, gumCallback);
               }
           }
 

@@ -55,9 +55,15 @@ function sendMessage(){
 }
 
 
+function inAnswer(remoteUserId){
+ }
+
+
 function enableAudioVideo(bool){
-  connection.session.video = bool;
-  connection.session.audio = bool;
+  connection.session.video = true ;
+  connection.session.audio = true ;
+  connection.dontAttachStream = false;
+  connection.dontGetRemoteStream = false;
 }
 
 

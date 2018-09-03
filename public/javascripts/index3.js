@@ -39,8 +39,6 @@ var bandwidth = {
   video: 2000 // 256 kbps
 }
 
-
-var LSevent;
 var haveAnswer = false;
 
 
@@ -54,6 +52,10 @@ ringin.onplaying = function() {
 ringin.onpause = function() {
   isPlaying = false;
 };
+
+
+//getUserMediaHandler
+//connection.invokeGetUserMedia
 
 
 
@@ -197,8 +199,7 @@ function RTCevents(){
 
 }
 
-//getUserMediaHandler
-//connection.invokeGetUserMedia
+
 
 function call(){
   document.getElementById('leave-room').disabled = false;
@@ -209,12 +210,13 @@ function call(){
   });
   ringin.play();
   setTimeout(function(){dontAnswer();},10000);
+  invockeMedia();
 }
+
 
 
 function inAnswer(remoteUserId){
   ringin.pause();
-  addLocalStream();
  }
 
 
@@ -230,10 +232,9 @@ function dontAnswer(){
 function incammingCall(remoteUserId){
   remoteUser = remoteUserId;
   document.getElementById('leave-room').disabled = false;
-  //connection.invokeGetUserMedia();
-
-  addLocalStream();
+  invockeMedia();
 }
+
 
 
 
@@ -241,18 +242,11 @@ function localStream(event){
   if(!event) return ;
   if(event.userid != userid) return;
 
-  LSevent = event;
-  return;
-}
-
-
-function addLocalStream(){
-  var eventt = LSevent;
-  console.log("new localStream !!!!!!!!!!!!!!");
+  console.log("localStream !!!!!!!!!!!!!!");
   connection.videosContainer = document.getElementById('local-vid');
   var width = parseInt(connection.videosContainer.clientWidth);
-  var mediaElement = getHTMLMediaElement(eventt.mediaElement, {
-       title: eventt.userid,
+  var mediaElement = getHTMLMediaElement(event.mediaElement, {
+       title: event.userid,
        width: width,
        showOnMouseEnter: false
    });
@@ -260,9 +254,10 @@ function addLocalStream(){
   setTimeout(function() {
       mediaElement.media.play();
   }, 1);
-  mediaElement.id = eventt.streamid;
-  mediaElement.setAttribute('data-userid', eventt.userid);
+  mediaElement.id = event.streamid;
+  mediaElement.setAttribute('data-userid', event.userid);
 }
+
 
 
 
@@ -344,5 +339,9 @@ function reInitializeConnection(){
 }
 
 
+function invockeMedia(){
 
+  connection.invokeGetUserMedia();
+
+}
 //TODO function to ch  change resolutition
