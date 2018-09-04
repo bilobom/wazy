@@ -16,6 +16,7 @@
 //.................................................................
 
 
+
 var connection ;
 
 var maxParticipantsAllowed = 1 ;
@@ -209,6 +210,7 @@ function call(){
   });
   ringin.play();
   setTimeout(function(){dontAnswer();},10000);
+  connection.isInitiator = false ;
 }
 
 
@@ -329,20 +331,16 @@ function leaveRoom(){
 
 function reInitializeConnection(){
   ringin.pause();
-
-  /**connection.leave();
-  connection.closeSocket();**/
-
-  document.getElementById('leave-room').disabled = true;
-  document.getElementById('open-room').disabled = false;
-
-  // reconnect to localRoom
-  connection.openOrJoin( userid ,function() {
-      localStorage.setItem('rmc-room-id', this.value);
-   });
-
+  window.location.reload();
 }
 
+
+function loadFile(src){
+  var script = document.createElement("script");
+  script.setAttribute("type", "text/javascript");
+  script.setAttribute("src", src);
+  document.getElementsByTagName("head")[0].appendChild(script);
+}
 
 
 //TODO function to ch  change resolutition
