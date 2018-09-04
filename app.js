@@ -39,8 +39,8 @@ app.use(/*nondefault*/ helmet.frameguard());
 app.use(/*nondefault*/ helmet.referrerPolicy());
 
 //enhancement
-app.use(compression());
-app.use(minify());
+//app.use(compression());
+//app.use(minify());
 
 
 // View Engine

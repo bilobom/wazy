@@ -23,7 +23,7 @@ var maxParticipantsAllowed = 1 ;
 
 var userid = $('input#userID').val() ;
 
-var remoteUser = '';
+var remoteUser = null;
 
 var roomid = $('input#userID').val();
 
@@ -172,11 +172,11 @@ function RTCevents(){
    });
 
    connection.onmessage = function(event) {
-       appendDIV(event);
+       appendDIV(event,event.userid);
    };
 
   connection.onMediaError = function(error, constraints) {
-         reInitializeConnection();
+         //reInitializeConnection();
   };
 
 
@@ -191,10 +191,12 @@ function RTCevents(){
            return;
        }else {
            connection.send(this.value);
-           appendDIV(this.value);
+           appendDIV(this.value,userid);
            this.value = '';
        }
      });
+
+
 
 }
 
@@ -210,7 +212,7 @@ function call(){
   });
   ringin.play();
   setTimeout(function(){dontAnswer();},10000);
-  connection.isInitiator = false ;
+  // connection.isInitiator = false ;
 }
 
 
@@ -234,7 +236,7 @@ function incammingCall(remoteUserId){
   document.getElementById('leave-room').disabled = false;
   //connection.invokeGetUserMedia();
 
-  addLocalStream();
+  setTimeout(addLocalStream(),1000);
 }
 
 
@@ -253,6 +255,7 @@ function addLocalStream(){
   console.log("new localStream !!!!!!!!!!!!!!");
   connection.videosContainer = document.getElementById('local-vid');
   var width = parseInt(connection.videosContainer.clientWidth);
+
   var mediaElement = getHTMLMediaElement(eventt.mediaElement, {
        title: eventt.userid,
        width: width,
@@ -289,17 +292,16 @@ function remoteStream(event){
 
 
 function sendMessage(){
-   // removing trailing/leading whitespace
-   /*this.value = this.value.replace(/^\s+|\s+$/g, '');
-   if (!this.value.length) return;
-   if (remoteUser == null) {
-       alert("Please connect with a recipient");
-       return;
-   }else {
-       connection.send(this.value);
-       appendDIV(this.value);
-       this.value = '';
-   }*/
+  message = $("#input-text").val();
+  if (!message.length) return;
+  if (remoteUser == null) {
+      alert("Please connect with a recipient");
+      return;
+  }else {
+      connection.send(message);
+      appendDIV(message,userid);
+      $("#input-text").val('');
+  }
 }
 
 
@@ -335,12 +337,21 @@ function reInitializeConnection(){
 }
 
 
-function loadFile(src){
+
+function loadFileInRunTime(src){
   var script = document.createElement("script");
   script.setAttribute("type", "text/javascript");
   script.setAttribute("src", src);
   document.getElementsByTagName("head")[0].appendChild(script);
 }
+
+
+//chatting
+function appendDIV(event,sender) {
+   $("#messages ul").append('<li class="list-group-item"><span class="time">'+new Date().toLocaleString()+'</span><span class="user">'+sender+'</span><span class="data">'+'   '+(event.data || event)+'</span></li>');
+   $("#input-text").focus();
+}
+
 
 
 //TODO function to ch  change resolutition

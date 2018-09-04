@@ -57,7 +57,7 @@
                 </span>
                 <input type="text" class="form-control message-text" id="input-text" autocomplete="off" placeholder="Type your message here" />
                 <span class="input-group-btn">
-                  <button class="btn btn-default" onclick="sendMessage()">Send!</button>
+                  <button id="send" class="btn btn-default" onclick="sendMessage()">Send!</button>
                 </span>
               </div>
           </li>
@@ -94,18 +94,19 @@
 
 
 <!--  Globales JS -->
+<script type="text/javascript" src="javascripts/DetectRTC.js"></script>
+<script type="text/javascript" src="javascripts/adapter.js"></script>
 <script type="text/javascript" src="javascripts/RTCPeerConnection.js"></script>
 <script type="text/javascript" src="javascripts/stream.js"></script>
-<script type="text/javascript" src="javascripts/DetectRTC.js"></script>
 <script type="text/javascript" src="javascripts/globals.js"></script>
 <script type="text/javascript" src="javascripts/Messenger.js"></script>
+<script type="text/javascript" src="javascripts/FileBufferReader.js"></script>
 <script type="text/javascript" src="javascripts/CodecsHandler.js"></script>
 
 <!--  //Globales JS -->
 
 <script type="text/javascript" src="javascripts/getHTMLMediaElement.js"></script>
 <script type="text/javascript" src="javascripts/IceServers.js"></script>
-<script type="text/javascript" src="javascripts/adapter.js"></script>
 <script type="text/javascript" src="javascripts/socket.io.js"></script>
 <script type="text/javascript" src="javascripts/RTCMultiConnection.js"></script>
 <script type="text/javascript" src="javascripts/index.js"></script>
