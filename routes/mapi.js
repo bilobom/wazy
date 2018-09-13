@@ -11,9 +11,36 @@ function init(router) {
 	});
 
 	// Login
-	router.get('/login', function (req, res) {
-		res.render('login');
+	router.get('/login',isAuth ,function(req,res,next){
+	    res.send('true');
 	});
+
+
+
+	function isAuth(req , res , next ){
+	    username = req.query.username;
+	    password = req.query.password;
+		User.getUserByUsername(username, function (err, user) {
+		    console.log(username  + ' ------------- ' + password + ' -------- ' + user + ' -------- > err '+err )
+		    if (err) throw err;
+		    if (!user) {
+			console.log('user null');
+			res.send('false');
+		    }
+
+		    User.comparePassword(password, user.password, function (err, isMatch) {
+			if (err) throw err;
+			if (isMatch) {
+			console.log('user is match');
+			    return next();
+			   //res.send('true');
+			} else {
+			console.log('user notMatch');
+			    res.send('false') ;
+			}
+		    });
+		});
+	}
 
 	// Login
 	router.get('/call', function (req, res) {
