@@ -9,7 +9,8 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
     function SocketConnection(connection, connectCallback) {
         var parameters = '';
 
-        parameters += '?userid=' + connection.userid;
+        parameters += '?soketType=' + 'RTCSocket';
+        parameters += '&userid=' + connection.userid;
         parameters += '&sessionid=' + connection.sessionid;
         parameters += '&msgEvent=' + connection.socketMessageEvent;
         parameters += '&socketCustomEvent=' + connection.socketCustomEvent;
@@ -213,16 +214,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
                     connection.deletePeer(message.sender);
                 }
 
-                //@R.GRID In Comming Call
-                if (connection.sessionid == $('input#userID').val()){
-                  if(confirm(message.sender+' Calling you !!!!')) {
-                     incammingCall(message.sender);
-                  } else {
-                    return;
-                  }
-                }
-
-                var userPreferences = {
+                  var userPreferences = {
                     extra: message.extra || {},
                     localPeerSdpConstraints: message.message.remotePeerSdpConstraints || {
                         OfferToReceiveAudio: connection.sdpConstraints.mandatory.OfferToReceiveAudio,
@@ -332,7 +324,6 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
         connection.socket.on('disconnect', function() {
             if (connection.enableLogs) {
                 console.warn('socket.io connection is closed');
-                reInitializeConnection();
             }
         });
 
@@ -718,7 +709,6 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
                         this.renegotiatePeer(remoteUserId, null, message);
                     } else {
                         this.createAnsweringPeer(message, remoteUserId);
-                        inAnswer(remoteUserId);
                     }
 
                 }
@@ -1489,7 +1479,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
             video: true
         };
 
-        connection.enableFileSharing = false;
+        connection.enableFileSharing = true;
 
         // all values in kbps
         connection.bandwidth = {
@@ -1716,7 +1706,6 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
         connection.onclose = function(event) {
             if (!!connection.enableLogs) {
                 console.warn('Data connection has been closed between you & ', event.userid);
-                reInitializeConnection();
             }
         };
 
@@ -1872,6 +1861,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
               }
           }
         }
+
         connection.addStream = function(session, remoteUserId) {
             if (!!session.getAudioTracks) {
                 if (connection.attachStreams.indexOf(session) === -1) {

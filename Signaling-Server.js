@@ -5,13 +5,20 @@
 
 // stores all sockets, user-ids, extra-data and connected sockets
 // you can check presence as following:
-// var isRoomExist = listOfUsers['room-id'] != null;
-var listOfUsers = {};
+// var isRoomExist = listOfRTCUsers['room-id'] != null;
+
+var listOfRTCUsers = {}; //in RTC Session
+var listOfUsers = {}; // simple session
+var onLineUsers = [];
+var mutex = false ;
+
 
 var shiftedModerationControls = {};
 
 // for scalable-broadcast demos
 var ScalableBroadcast;
+
+
 
 module.exports = exports = function(app, socketCallback) {
     socketCallback = socketCallback || function() {};
@@ -29,7 +36,6 @@ module.exports = exports = function(app, socketCallback) {
                 log: false,
                 origins: '*:*'
             });
-
             io.set('transports', [
                 'websocket',
                 'xhr-polling',
@@ -42,54 +48,133 @@ module.exports = exports = function(app, socketCallback) {
         onConnection(app);
     }
 
+
     // to secure your socket.io usage: (via: docs/tips-tricks.md)
     // io.set('origins', 'https://rgridserve.herokuapp.com:*');
-
-    function appendUser(socket) {
-        var alreadyExist = listOfUsers[socket.userid];
-        var extra = {};
-
-        if (alreadyExist && alreadyExist.extra) {
-            extra = alreadyExist.extra;
-        }
-
-        var params = socket.handshake.query;
-
-        if (params.extra) {
-            try {
-                if (typeof params.extra === 'string') {
-                    params.extra = JSON.parse(params.extra);
-                }
-                extra = params.extra;
-            } catch (e) {
-                extra = params.extra;
-            }
-        }
-
-        listOfUsers[socket.userid] = {
-            socket: socket,
-            connectedWith: {},
-            isPublic: false, // means: isPublicModerator
-            extra: extra || {},
-            maxParticipantsAllowed: params.maxParticipantsAllowed || 1000
-        };
+    /*
+    if (socket.handshake.headers.origin == 'https://rgridserve.herokuapp.com') {
+    console.log(socket.handshake.headers.origin + ' Allowed.');
+    } else {
+    console.log(socket.handshake.headers.origin + ' Not Allowed.');
+    socket.disconnect();
+    return;
     }
+    */
 
     function onConnection(socket) {
-        /* if (socket.handshake.headers.origin == 'https://rgridserve.herokuapp.com') {
-             console.log(socket.handshake.headers.origin + ' Allowed.');
-        } else {
-            console.log(socket.handshake.headers.origin + ' Not Allowed.');
-            socket.disconnect();
-            return;
-        }*/
+
+        var params = socket.handshake.query;
+        if(params.soketType == 'socket'){
+          // From Users.js (Client)
+          simpleSocket(socket);
+        }else{
+          // params.soketType ==  RTCSocket
+          // From RTCMultiConnection.js (Client)
+          onRTCconnectoin(socket);
+        }
+    }
+
+
+    function simpleSocket(newSocket){
+
+      appendUser(newSocket);
+      var params = newSocket.handshake.query;
+      var userid = params.userid;
+      newSocket.userid = userid ;
+
+
+      if(!onLineUsers.includes(params.userid)){
+        onLineUsers.push(params.userid);
+      }
+
+      console.log( " Connect ------------------- > "+ userid + " -------------------------- > "+listOfUsers[userid].sockets.length);
+
+      io.sockets.emit('UsersOnLine',onLineUsers,listOfUsers[newSocket.userid].sockets.length);
+
+
+
+      newSocket.on('call',function(caller , recever , video){
+        if(!!listOfUsers[recever] && !!listOfUsers[recever].sockets && listOfUsers[recever].sockets.length > 0 ){
+          recever = listOfUsers[recever];
+          recever.sockets.forEach(function(ReceverSocket) {
+            if(ReceverSocket) ReceverSocket.emit('inCammingCall',caller,video);
+          });
+        }
+        else {
+          if(!!listOfUsers[caller] && !!listOfUsers[caller].sockets && listOfUsers[caller].sockets.length > 0 ){
+            caller = listOfUsers[caller];
+            caller.sokets.forEach(function(callerSocket){
+                callerSocket.emit('userOffLine',recever);
+            });
+          }
+          console.log('No '+recever+' Socket to Call him !!!');
+        }
+      });
+
+
+
+      newSocket.on('setResponse',function(caller,recever,accepted,roomid){
+        if(!!listOfUsers[caller] && listOfUsers[caller].sockets){
+          caller = listOfUsers[caller];
+          caller.sockets.forEach(function(callerSocket) {
+            if(callerSocket) callerSocket.emit('getResponse',recever,accepted,roomid);
+          });
+        }
+      });
+
+
+      newSocket.on('disconnect', function() {
+        if(!!listOfUsers[newSocket.userid] &&  !!listOfUsers[newSocket.userid].sockets){
+          console.log( "disconnect ------------------- > "+ newSocket.userid + " -------------------------- > "+listOfUsers[userid].sockets.length);
+          if(listOfUsers[newSocket.userid].sockets.length <= 1) {
+            listOfUsers[newSocket.userid].sockets = [];
+            onLineUsers = onLineUsers.filter(word => word !== newSocket.userid );
+          }else{
+            listOfUsers[newSocket.userid].sockets = listOfUsers[newSocket.userid].sockets.filter(e => e.id != newSocket.id );
+          }
+        }
+        io.sockets.emit('UsersOnLine',onLineUsers,listOfUsers[newSocket.userid].sockets.length);
+
+
+      });
+
+
+      //@R.GRID
+      function call(message){
+
+      }
+
+
+    }
+
+
+    // each user can open multiSokets
+    function appendUser(newSocket){
+      var params = newSocket.handshake.query;
+      var userid = params.userid;
+      newSocket.userid = userid ;
+      // each user can open multiSokets
+      // not empty
+      if(!!listOfUsers[userid] &&  !!listOfUsers[userid].sockets ) {
+        listOfUsers[userid].sockets.push(newSocket);
+      }else { // empty
+        listOfUsers[userid] = {
+          sockets : [newSocket]
+        }
+      }
+      console.log(userid+' appended ---------> '+ listOfUsers[userid].sockets.length )
+    }
+
+
+    function onRTCconnectoin(socket) {
+
         var params = socket.handshake.query;
         var socketMessageEvent = params.msgEvent || 'RTCMultiConnection-Message';
 
         var sessionid = params.sessionid;
         var autoCloseEntireSession = params.autoCloseEntireSession;
 
-        if (params.enableScalableBroadcast) {
+        if (!!params.enableScalableBroadcast) {
             if (!ScalableBroadcast) {
                 ScalableBroadcast = require('./Scalable-Broadcast.js');
             }
@@ -97,7 +182,7 @@ module.exports = exports = function(app, socketCallback) {
         }
 
         // temporarily disabled
-        if (false && !!listOfUsers[params.userid]) {
+        if (!!listOfRTCUsers[params.userid]) {
             params.dontUpdateUserId = true;
 
             var useridAlreadyTaken = params.userid;
@@ -106,9 +191,9 @@ module.exports = exports = function(app, socketCallback) {
         }
 
         socket.userid = params.userid;
-        appendUser(socket);
+        appendUserUnique(socket);
 
-        if (autoCloseEntireSession == 'false' && Object.keys(listOfUsers).length == 1) {
+        if (autoCloseEntireSession == 'false' && Object.keys(listOfRTCUsers).length == 1) {
             socket.shiftModerationControlBeforeLeaving = true;
         }
 
@@ -118,11 +203,11 @@ module.exports = exports = function(app, socketCallback) {
 
         socket.on('extra-data-updated', function(extra) {
             try {
-                if (!listOfUsers[socket.userid]) return;
-                listOfUsers[socket.userid].extra = extra;
+                if (!listOfRTCUsers[socket.userid]) return;
+                listOfRTCUsers[socket.userid].extra = extra;
 
-                for (var user in listOfUsers[socket.userid].connectedWith) {
-                    listOfUsers[user].socket.emit('extra-data-updated', socket.userid, extra);
+                for (var user in listOfRTCUsers[socket.userid].connectedWith) {
+                    listOfRTCUsers[user].socket.emit('extra-data-updated', socket.userid, extra);
                 }
             } catch (e) {
                 pushLogs('extra-data-updated', e);
@@ -131,17 +216,17 @@ module.exports = exports = function(app, socketCallback) {
 
         socket.on('get-remote-user-extra-data', function(remoteUserId, callback) {
             callback = callback || function() {};
-            if (!remoteUserId || !listOfUsers[remoteUserId]) {
+            if (!remoteUserId || !listOfRTCUsers[remoteUserId]) {
                 callback('remoteUserId (' + remoteUserId + ') does NOT exist.');
                 return;
             }
-            callback(listOfUsers[remoteUserId].extra);
+            callback(listOfRTCUsers[remoteUserId].extra);
         });
 
         socket.on('become-a-public-moderator', function() {
             try {
-                if (!listOfUsers[socket.userid]) return;
-                listOfUsers[socket.userid].isPublic = true;
+                if (!listOfRTCUsers[socket.userid]) return;
+                listOfRTCUsers[socket.userid].isPublic = true;
             } catch (e) {
                 pushLogs('become-a-public-moderator', e);
             }
@@ -161,8 +246,8 @@ module.exports = exports = function(app, socketCallback) {
 
         socket.on('dont-make-me-moderator', function() {
             try {
-                if (!listOfUsers[socket.userid]) return;
-                listOfUsers[socket.userid].isPublic = false;
+                if (!listOfRTCUsers[socket.userid]) return;
+                listOfRTCUsers[socket.userid].isPublic = false;
             } catch (e) {
                 pushLogs('dont-make-me-moderator', e);
             }
@@ -172,9 +257,9 @@ module.exports = exports = function(app, socketCallback) {
             try {
                 userIdStartsWith = userIdStartsWith || '';
                 var allPublicModerators = [];
-                for (var moderatorId in listOfUsers) {
-                    if (listOfUsers[moderatorId].isPublic && moderatorId.indexOf(userIdStartsWith) === 0 && moderatorId !== socket.userid) {
-                        var moderator = listOfUsers[moderatorId];
+                for (var moderatorId in listOfRTCUsers) {
+                    if (listOfRTCUsers[moderatorId].isPublic && moderatorId.indexOf(userIdStartsWith) === 0 && moderatorId !== socket.userid) {
+                        var moderator = listOfRTCUsers[moderatorId];
                         allPublicModerators.push({
                             userid: moderatorId,
                             extra: moderator.extra
@@ -197,20 +282,20 @@ module.exports = exports = function(app, socketCallback) {
             }
 
             try {
-                if (listOfUsers[socket.userid] && listOfUsers[socket.userid].socket.userid == socket.userid) {
+                if (listOfRTCUsers[socket.userid] && listOfRTCUsers[socket.userid].socket.userid == socket.userid) {
                     if (newUserId === socket.userid) return;
 
                     var oldUserId = socket.userid;
-                    listOfUsers[newUserId] = listOfUsers[oldUserId];
-                    listOfUsers[newUserId].socket.userid = socket.userid = newUserId;
-                    delete listOfUsers[oldUserId];
+                    listOfRTCUsers[newUserId] = listOfRTCUsers[oldUserId];
+                    listOfRTCUsers[newUserId].socket.userid = socket.userid = newUserId;
+                    delete listOfRTCUsers[oldUserId];
 
                     callback();
                     return;
                 }
 
                 socket.userid = newUserId;
-                appendUser(socket);
+                appendUserUnique(socket);
 
                 callback();
             } catch (e) {
@@ -220,8 +305,8 @@ module.exports = exports = function(app, socketCallback) {
 
         socket.on('set-password', function(password) {
             try {
-                if (listOfUsers[socket.userid]) {
-                    listOfUsers[socket.userid].password = password;
+                if (listOfRTCUsers[socket.userid]) {
+                    listOfRTCUsers[socket.userid].password = password;
                 }
             } catch (e) {
                 pushLogs('set-password', e);
@@ -230,16 +315,16 @@ module.exports = exports = function(app, socketCallback) {
 
         socket.on('disconnect-with', function(remoteUserId, callback) {
             try {
-                if (listOfUsers[socket.userid] && listOfUsers[socket.userid].connectedWith[remoteUserId]) {
-                    delete listOfUsers[socket.userid].connectedWith[remoteUserId];
+                if (listOfRTCUsers[socket.userid] && listOfRTCUsers[socket.userid].connectedWith[remoteUserId]) {
+                    delete listOfRTCUsers[socket.userid].connectedWith[remoteUserId];
                     socket.emit('user-disconnected', remoteUserId);
                 }
 
-                if (!listOfUsers[remoteUserId]) return callback();
+                if (!listOfRTCUsers[remoteUserId]) return callback();
 
-                if (listOfUsers[remoteUserId].connectedWith[socket.userid]) {
-                    delete listOfUsers[remoteUserId].connectedWith[socket.userid];
-                    listOfUsers[remoteUserId].socket.emit('user-disconnected', socket.userid);
+                if (listOfRTCUsers[remoteUserId].connectedWith[socket.userid]) {
+                    delete listOfRTCUsers[remoteUserId].connectedWith[socket.userid];
+                    listOfRTCUsers[remoteUserId].socket.emit('user-disconnected', socket.userid);
                 }
                 callback();
             } catch (e) {
@@ -249,11 +334,11 @@ module.exports = exports = function(app, socketCallback) {
 
         socket.on('close-entire-session', function(callback) {
             try {
-                var connectedWith = listOfUsers[socket.userid].connectedWith;
+                var connectedWith = listOfRTCUsers[socket.userid].connectedWith;
                 Object.keys(connectedWith).forEach(function(key) {
                     if (connectedWith[key] && connectedWith[key].emit) {
                         try {
-                            connectedWith[key].emit('closed-entire-session', socket.userid, listOfUsers[socket.userid].extra);
+                            connectedWith[key].emit('closed-entire-session', socket.userid, listOfRTCUsers[socket.userid].extra);
                         } catch (e) {}
                     }
                 });
@@ -266,26 +351,26 @@ module.exports = exports = function(app, socketCallback) {
         });
 
         socket.on('check-presence', function(userid, callback) {
-            if (!listOfUsers[userid]) {
+            if (!listOfRTCUsers[userid]) {
                 callback(false, userid, {});
             } else {
-                callback(userid !== socket.userid, userid, listOfUsers[userid].extra);
+                callback(userid !== socket.userid, userid, listOfRTCUsers[userid].extra);
             }
         });
 
         function onMessageCallback(message) {
             try {
-                if (!listOfUsers[message.sender]) {
+                if (!listOfRTCUsers[message.sender]) {
                     socket.emit('user-not-found', message.sender);
                     return;
                 }
 
-                if (!message.message.userLeft && !listOfUsers[message.sender].connectedWith[message.remoteUserId] && !!listOfUsers[message.remoteUserId]) {
-                    listOfUsers[message.sender].connectedWith[message.remoteUserId] = listOfUsers[message.remoteUserId].socket;
-                    listOfUsers[message.sender].socket.emit('user-connected', message.remoteUserId);
+                if (!message.message.userLeft && !listOfRTCUsers[message.sender].connectedWith[message.remoteUserId] && !!listOfRTCUsers[message.remoteUserId]) {
+                    listOfRTCUsers[message.sender].connectedWith[message.remoteUserId] = listOfRTCUsers[message.remoteUserId].socket;
+                    listOfRTCUsers[message.sender].socket.emit('user-connected', message.remoteUserId);
 
-                    if (!listOfUsers[message.remoteUserId]) {
-                        listOfUsers[message.remoteUserId] = {
+                    if (!listOfRTCUsers[message.remoteUserId]) {
+                        listOfRTCUsers[message.remoteUserId] = {
                             socket: null,
                             connectedWith: {},
                             isPublic: false,
@@ -294,16 +379,16 @@ module.exports = exports = function(app, socketCallback) {
                         };
                     }
 
-                    listOfUsers[message.remoteUserId].connectedWith[message.sender] = socket;
+                    listOfRTCUsers[message.remoteUserId].connectedWith[message.sender] = socket;
 
-                    if (listOfUsers[message.remoteUserId].socket) {
-                        listOfUsers[message.remoteUserId].socket.emit('user-connected', message.sender);
+                    if (listOfRTCUsers[message.remoteUserId].socket) {
+                        listOfRTCUsers[message.remoteUserId].socket.emit('user-connected', message.sender);
                     }
                 }
 
-                if (listOfUsers[message.sender].connectedWith[message.remoteUserId] && listOfUsers[socket.userid]) {
-                    message.extra = listOfUsers[socket.userid].extra;
-                    listOfUsers[message.sender].connectedWith[message.remoteUserId].emit(socketMessageEvent, message);
+                if (listOfRTCUsers[message.sender].connectedWith[message.remoteUserId] && listOfRTCUsers[socket.userid]) {
+                    message.extra = listOfRTCUsers[socket.userid].extra;
+                    listOfRTCUsers[message.sender].connectedWith[message.remoteUserId].emit(socketMessageEvent, message);
                 }
             } catch (e) {
                 pushLogs('onMessageCallback', e);
@@ -311,7 +396,7 @@ module.exports = exports = function(app, socketCallback) {
         }
 
         function joinARoom(message) {
-            var roomInitiator = listOfUsers[message.remoteUserId];
+            var roomInitiator = listOfRTCUsers[message.remoteUserId];
 
             if (!roomInitiator) {
                 return;
@@ -350,47 +435,6 @@ module.exports = exports = function(app, socketCallback) {
             });
         }
 
-        //@R.GRID
-        function call(message){
-          var roomInitiator = listOfUsers[message.remoteUserId];
-
-          if (!roomInitiator) {
-              return;
-          }
-
-          var usersInARoom = roomInitiator.connectedWith;
-          var maxParticipantsAllowed = 1;
-
-          if (Object.keys(usersInARoom).length >= maxParticipantsAllowed) {
-              socket.emit('room-full', message.remoteUserId);
-
-              if (roomInitiator.connectedWith[socket.userid]) {
-                  delete roomInitiator.connectedWith[socket.userid];
-              }
-              return;
-          }
-
-          var inviteTheseUsers = [roomInitiator.socket];
-          Object.keys(usersInARoom).forEach(function(key) {
-              inviteTheseUsers.push(usersInARoom[key]);
-          });
-
-          var keepUnique = [];
-          inviteTheseUsers.forEach(function(userSocket) {
-              if (userSocket.userid == socket.userid) return;
-              if (keepUnique.indexOf(userSocket.userid) != -1) {
-                  return;
-              }
-              keepUnique.push(userSocket.userid);
-
-              if (params.oneToMany && userSocket.userid !== roomInitiator.socket.userid) return;
-
-              message.remoteUserId = userSocket.userid;
-              //@R.GRID
-              userSocket.emit(socketMessageEvent, message);
-          });
-
-        }
 
         var numberOfPasswordTries = 0;
         socket.on(socketMessageEvent, function(message, callback) {
@@ -401,7 +445,7 @@ module.exports = exports = function(app, socketCallback) {
 
             try {
                 if (message.remoteUserId && message.remoteUserId != 'system' && message.message.newParticipationRequest) {
-                    if (listOfUsers[message.remoteUserId] && listOfUsers[message.remoteUserId].password) {
+                    if (listOfRTCUsers[message.remoteUserId] && listOfRTCUsers[message.remoteUserId].password) {
                         if (numberOfPasswordTries > 3) {
                             socket.emit('password-max-tries-over', message.remoteUserId);
                             return;
@@ -413,14 +457,14 @@ module.exports = exports = function(app, socketCallback) {
                             return;
                         }
 
-                        if (message.password != listOfUsers[message.remoteUserId].password) {
+                        if (message.password != listOfRTCUsers[message.remoteUserId].password) {
                             numberOfPasswordTries++;
                             socket.emit('invalid-password', message.remoteUserId, message.password);
                             return;
                         }
                     }
 
-                    if (listOfUsers[message.remoteUserId]) {
+                    if (listOfRTCUsers[message.remoteUserId]) {
                         joinARoom(message);
                         return;
                     }
@@ -443,13 +487,13 @@ module.exports = exports = function(app, socketCallback) {
                             return;
                         }
 
-                        callback(!!listOfUsers[message.message.userid], message.message.userid);
+                        callback(!!listOfRTCUsers[message.message.userid], message.message.userid);
                         return;
                     }
                 }
 
-                if (!listOfUsers[message.sender]) {
-                    listOfUsers[message.sender] = {
+                if (!listOfRTCUsers[message.sender]) {
+                    listOfRTCUsers[message.sender] = {
                         socket: socket,
                         connectedWith: {},
                         isPublic: false,
@@ -464,7 +508,7 @@ module.exports = exports = function(app, socketCallback) {
                     var waitFor = 60 * 10; // 10 minutes
                     var invokedTimes = 0;
                     (function repeater() {
-                        if (typeof socket == 'undefined' || !listOfUsers[socket.userid]) {
+                        if (typeof socket == 'undefined' || !listOfRTCUsers[socket.userid]) {
                             return;
                         }
 
@@ -474,7 +518,7 @@ module.exports = exports = function(app, socketCallback) {
                             return;
                         }
 
-                        if (listOfUsers[message.remoteUserId] && listOfUsers[message.remoteUserId].socket) {
+                        if (listOfRTCUsers[message.remoteUserId] && listOfRTCUsers[message.remoteUserId].socket) {
                             joinARoom(message);
                             return;
                         }
@@ -513,19 +557,19 @@ module.exports = exports = function(app, socketCallback) {
 
             try {
                 // inform all connected users
-                if (listOfUsers[socket.userid]) {
+                if (listOfRTCUsers[socket.userid]) {
                     var firstUserSocket = null;
 
-                    for (var s in listOfUsers[socket.userid].connectedWith) {
+                    for (var s in listOfRTCUsers[socket.userid].connectedWith) {
                         if (!firstUserSocket) {
-                            firstUserSocket = listOfUsers[socket.userid].connectedWith[s];
+                            firstUserSocket = listOfRTCUsers[socket.userid].connectedWith[s];
                         }
 
-                        listOfUsers[socket.userid].connectedWith[s].emit('user-disconnected', socket.userid);
+                        listOfRTCUsers[socket.userid].connectedWith[s].emit('user-disconnected', socket.userid);
 
-                        if (listOfUsers[s] && listOfUsers[s].connectedWith[socket.userid]) {
-                            delete listOfUsers[s].connectedWith[socket.userid];
-                            listOfUsers[s].socket.emit('user-disconnected', socket.userid);
+                        if (listOfRTCUsers[s] && listOfRTCUsers[s].connectedWith[socket.userid]) {
+                            delete listOfRTCUsers[s].connectedWith[socket.userid];
+                            listOfRTCUsers[s].socket.emit('user-disconnected', socket.userid);
                         }
                     }
 
@@ -537,14 +581,49 @@ module.exports = exports = function(app, socketCallback) {
                 pushLogs('disconnect', e);
             }
 
-            delete listOfUsers[socket.userid];
+            delete listOfRTCUsers[socket.userid];
         });
 
         if (socketCallback) {
             socketCallback(socket);
         }
     }
+
+
+    function appendUserUnique(socket) {
+        var alreadyExist = listOfRTCUsers[socket.userid];
+        var extra = {};
+
+        if (alreadyExist && alreadyExist.extra) {
+            extra = alreadyExist.extra;
+        }
+
+        var params = socket.handshake.query;
+
+        if (params.extra) {
+            try {
+                if (typeof params.extra === 'string') {
+                    params.extra = JSON.parse(params.extra);
+                }
+                extra = params.extra;
+            } catch (e) {
+                extra = params.extra;
+            }
+        }
+
+        listOfRTCUsers[socket.userid] = {
+            socket: socket,
+            connectedWith: {},
+            isPublic: false, // means: isPublicModerator
+            extra: extra || {},
+            maxParticipantsAllowed: params.maxParticipantsAllowed || 1000
+        };
+    }
+
 };
+
+
+
 
 var enableLogs = false;
 
@@ -559,6 +638,7 @@ try {
 }
 
 var fs = require('fs');
+
 
 function pushLogs() {
     if (!enableLogs) return;
@@ -601,6 +681,7 @@ function uncache(jsonFile) {
     });
 }
 
+
 function searchCache(jsonFile, callback) {
     var mod = require.resolve(jsonFile);
 
@@ -614,3 +695,7 @@ function searchCache(jsonFile, callback) {
         })(mod);
     }
 }
+
+
+
+// The end
