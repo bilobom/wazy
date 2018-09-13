@@ -16,7 +16,9 @@ var horzScaling = false;
 
 var index = require('../routes/index');
 var users = require('../routes/user');
-index.init(app); users.init(app)
+var mapi = require('../routes/mapi');
+
+index.init(app); users.init(app);mapi.init(app);
 
 
 /**
