@@ -194,17 +194,15 @@ function call(){
   connection.openOrJoin( roomid ,function() {
      localStorage.setItem('rmc-room-id', this.value);
   });
-  // connection.isInitiator = false ;
 }
-
 
 
 function localStream(event){
   if(!event) return ;
   if(event.userid != userid) return;
 
+  connection.videosContainer = document.getElementById('local-vid');
   var width = parseInt(connection.videosContainer.clientWidth);
-
   var mediaElement = getHTMLMediaElement(event.mediaElement, {
        title: event.userid,
        width: width,
@@ -213,11 +211,11 @@ function localStream(event){
   connection.videosContainer.appendChild(mediaElement);
   setTimeout(function() {
       mediaElement.media.play();
-  }, 1);
+  }, 5000);
   mediaElement.id = event.streamid;
-  mediaElement.setAttribute('data-userid', eventt.userid);
-
+  mediaElement.setAttribute('data-userid', event.userid);
 }
+
 
 
 function remoteStream(event){
@@ -235,7 +233,6 @@ function remoteStream(event){
   }, 1);
   mediaElement.id = event.streamid;
   mediaElement.setAttribute('data-userid', event.userid);
-
 }
 
 
