@@ -41,23 +41,6 @@ var bandwidth = {
 }
 
 
-var LSevent;
-var haveAnswer = false;
-
-
-// Audio Control
-var ringin = new Audio('/Audio/Ringing_Phone.mp3');
-ringin.loop = true;
-var isPlaying = false;
-ringin.onplaying = function() {
-  isPlaying = true;
-};
-ringin.onpause = function() {
-  isPlaying = false;
-};
-
-
-
 $(document).ready(function(){
   if(connection) return;
   initSoket();
@@ -202,8 +185,7 @@ function RTCevents(){
 
 }
 
-//getUserMediaHandler
-//connection.invokeGetUserMedia
+
 
 function call(){
   document.getElementById('leave-room').disabled = false;
@@ -212,33 +194,7 @@ function call(){
   connection.openOrJoin( roomid ,function() {
      localStorage.setItem('rmc-room-id', this.value);
   });
-  ringin.play();
-  setTimeout(function(){dontAnswer();},10000);
   // connection.isInitiator = false ;
-}
-
-
-function inAnswer(remoteUserId){
-  ringin.pause();
-  addLocalStream();
- }
-
-
-function dontAnswer(){
-  if(isPlaying){
-    ringin.pause();
-    reInitializeConnection();
-  }
-}
-
-
-
-function incammingCall(remoteUserId){
-  remoteUser = remoteUserId;
-  document.getElementById('leave-room').disabled = false;
-  //connection.invokeGetUserMedia();
-
-  setTimeout(addLocalStream(),1000);
 }
 
 
@@ -247,19 +203,10 @@ function localStream(event){
   if(!event) return ;
   if(event.userid != userid) return;
 
-  LSevent = event;
-  return;
-}
-
-
-function addLocalStream(){
-  var eventt = LSevent;
-  console.log("new localStream !!!!!!!!!!!!!!");
-  connection.videosContainer = document.getElementById('local-vid');
   var width = parseInt(connection.videosContainer.clientWidth);
 
-  var mediaElement = getHTMLMediaElement(eventt.mediaElement, {
-       title: eventt.userid,
+  var mediaElement = getHTMLMediaElement(event.mediaElement, {
+       title: event.userid,
        width: width,
        showOnMouseEnter: false
    });
@@ -267,10 +214,10 @@ function addLocalStream(){
   setTimeout(function() {
       mediaElement.media.play();
   }, 1);
-  mediaElement.id = eventt.streamid;
+  mediaElement.id = event.streamid;
   mediaElement.setAttribute('data-userid', eventt.userid);
-}
 
+}
 
 
 function remoteStream(event){
@@ -334,7 +281,6 @@ function leaveRoom(){
 
 
 function reInitializeConnection(){
-  ringin.pause();
   window.location.reload();
 }
 
@@ -357,3 +303,5 @@ function appendDIV(event,sender) {
 
 
 //TODO function to ch  change resolutition
+//getUserMediaHandler
+//connection.invokeGetUserMedia
