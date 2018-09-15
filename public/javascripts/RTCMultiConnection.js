@@ -5262,7 +5262,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
 
             getUserMediaHandler({
                 onGettingLocalMedia: function(stream) {
-                    debug("-----------------------------streamis "+deser(stream));
+                    //debug("-----------------------------streamis "+deser(stream));
                     var videoConstraints = localMediaConstraints.video;
                     if (videoConstraints) {
                         if (videoConstraints.mediaSource || videoConstraints.mozMediaSource) {
