@@ -223,7 +223,6 @@ function localStream(event){
        title: event.userid,
        showOnMouseEnter: false
    });
-  debug("I have envoked locallly ---------------------- ");
   mediaElement.style = "top: 20px;right: 20px;  height: 100%; width: 100%; transition: opacity 1s;";
   connection.videosContainer.appendChild(mediaElement);
   setTimeout(function() {
@@ -442,7 +441,9 @@ function Hungup(){
    $('#entrence3').removeClass("hidden");
 }
 
-
+function reInitializeConnection(){
+  
+}
 
 function debug(str){
 	if(connection.enableLogs){
