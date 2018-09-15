@@ -210,6 +210,7 @@ function call(){
 function localStream(event){
   if(!event) return ;
   if(event.userid != userid) return;
+  debug('local stream Entreed !!!!!!');
 
   connection.videosContainer = $('#mini-video')[0];
   debug(event.mediaElement);
@@ -219,6 +220,7 @@ function localStream(event){
    });
   mediaElement.style = "top: 20px;right: 20px;  height: 100%; width: 100%; transition: opacity 1s;";
   connection.videosContainer.appendChild(mediaElement);
+  debug('local stream playing !!!!!!');
   mediaElement.play();
   mediaElement.id = event.streamid;
   localStreamID=event.streamid;
