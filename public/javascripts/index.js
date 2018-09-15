@@ -37,7 +37,7 @@ var bandwidth = {
   video: 2000 // 256 kbps
 }
 
-var localStreamID = null ;
+var localStreamID;
 
 // Cordova initialization
 var app = {
@@ -149,17 +149,13 @@ function RTCevents(){
       alert('There is a call going On');
   };
 
-
-   connection.onstream = function(event) {
-
-       debug(event);
-       if(event.type=='remote'){
-         remoteStream(event);
-		 incammingCall(event.userid);
-
-       }else { //local
-          localStream(event);
-       }
+  connection.onstream = function(event) {
+     debug(event);
+     if(event.type=='remote'){
+       remoteStream(event);
+     }else { //local
+       localStream(event);
+     }
    };
 
    connection.onstreamended = function(event) {
@@ -178,12 +174,11 @@ function RTCevents(){
    };
 
   connection.onMediaError = function(error, constraints) {
-         reInitializeConnection();
+         debug('Media Error ---------> '+error);
   };
   connection.onclose= function(event){
   	debug(event);
   }
-
 
   $("#input-text").keyup(function(e) {
        //console.log(this.value);
@@ -222,19 +217,20 @@ function localStream(event){
   if(!event) return ;
   if(event.userid != userid) return;
 
-  connection.videosContainer = document.getElementById('local-vid');
-  var width = parseInt(connection.videosContainer.clientWidth);
+  connection.videosContainer = $('#mini-video')[0];
+  debug(event.mediaElement);
   var mediaElement = getHTMLMediaElement(event.mediaElement, {
        title: event.userid,
-       width: width,
        showOnMouseEnter: false
    });
+  debug("I have envoked locallly ---------------------- ");
+  mediaElement.style = "top: 20px;right: 20px;  height: 100%; width: 100%; transition: opacity 1s;";
   connection.videosContainer.appendChild(mediaElement);
   setTimeout(function() {
-      mediaElement.media.play();
-  }, 5000);
-	localStreamID=event.streamid;
+      mediaElement.play();
+  }, 1);
   mediaElement.id = event.streamid;
+  localStreamID=event.streamid;
   mediaElement.setAttribute('data-userid', event.userid);
 }
 
@@ -436,22 +432,16 @@ function takePhoto(video) {
 
 
 
-function leaveRoom(){
+function Hungup(){
    if(remoteUser) connection.deletePeer(remoteUser);
    connection.attachStreams.forEach(function(localStream) {
        localStream.stop();
    });
-   reInitializeConnection();
    $("#videos").addClass("hidden");
    $("#icons").addClass("hidden");
    $('#entrence3').removeClass("hidden");
 }
 
-
-
-function reInitializeConnection(){
-
-}
 
 
 function debug(str){
