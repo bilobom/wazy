@@ -46,7 +46,7 @@ app.use(/*nondefault*/ helmet.referrerPolicy());
 // View Engine
 app.use(logger('dev'));
 app.set('views', path.join(__dirname, 'views'));
-app.engine('handlebars', exphbs({defaultLayout:'layout'}));
+//app.engine('handlebars', exphbs({defaultLayout:'layout'}));
 app.set('view engine', 'handlebars');
 // Set Static Folder
 app.use(express.static(path.join(__dirname, 'public')));

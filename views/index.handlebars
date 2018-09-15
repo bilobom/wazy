@@ -1,40 +1,109 @@
 
-
-<link rel="stylesheet" href="/stylesheets/topnav.css" />
-<link rel="stylesheet" href="/stylesheets/bootstrap.min.css" />
-
-
-
-<div id="particles-js"></div>
-
-{{#if user}}
-  <input type="hidden" id="userID" value={{user.username}} >
-{{else}}
-  <input type="hidden" id="userID" value="DefaultUserID" >
-{{/if}}
-
-
-<div class="topnav" style="visibility:hidden">
-  <div class="login-container">
-    <form>
-      <input type="text" id="remoteid"  placeholder="Remot User" autocorrect=off autocapitalize=off required/>
-      <button type="button"  id="leave-room" class="btn btn-danger" onclick="" >Hungup</button>
-      <button type="button"  id="open-room" class="btn btn-success" onclick="call(this)" >Call</button>
-    </form>
-  </div>
-</div>
+<!-- .................................................................
+//.RRRRRRRRRR..........GGGGGGGG....GRRRRRRRRR...III..IDDDDDDDD.....
+//.RRRRRRRRRRR........GGGGGGGGGG...GRRRRRRRRRR..III..IDDDDDDDDD....
+//.RRRRRRRRRRR.......GGGGGGGGGGGG..GRRRRRRRRRR..III..IDDDDDDDDDD...
+//.RRR.....RRR.......GGGG....GGGG..GRR.....RRR..III..IDD....DDDD...
+//.RRR.....RRR.......GGG...........GRR.....RRR..III..IDD.....DDDD..
+//.RRR...RRRRR.......GGG...........GRR...RRRRR..III..IDD.....DDDD..
+//.RRRRRRRRRRR.......GGG...GGGGGG..GRRRRRRRRRR..III..IDD.....DDDD..
+//.RRRRRRRRRR........GGG...GGGGGG..GRRRRRRRRR...III..IDD.....DDDD..
+//.RRRRRRRRRR........GGG......GGG..GRRRRRRRRR...III..IDD.....DDDD..
+//.RRR...RRRR........GGGG.....GGG..GRR...RRRR...III..IDD....DDDD...
+//.RRR....RRRR.......GGGGGGGGGGGG..GRR....RRRR..III..IDDDDDDDDDD...
+//.RRR....RRRR..... ..GGGGGGGGGGG..GRR....RRRR..III..IDDDDDDDDD....
+//.RRR.....RRRR...0....GGGGGGGGG...GRR.....RRRR.III..IDDDDDDDD.....
+//................................................................. -->
 
 
-<div style="margin-top:15%;">
-  <div class="panel panel-default">
-    <div class="panel-body">
-      <div class="list-group" id="list-users">
-        <a class="list-group-item list-group-item-action h4 text-center text-light bg-secondary"> On line Users </a>
+<!DOCTYPE html>
+<html>
+<head>
+
+	<title>R.GRID</title>
+
+	<meta name="format-detection" content="telephone=yes" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+	<link rel="stylesheet" href="/stylesheets/font-awesome.min.css">
+	<link rel="stylesheet" href="/fonts/material-icons.css">
+
+	<link rel="stylesheet" href="/stylesheets/bootstrap.css" />
+	<link rel="stylesheet" href="/stylesheets/bootstrap-theme.min.css" />
+	<link rel="stylesheet" href="/stylesheets/getHTMLMediaElement.css" />
+	<link rel="stylesheet" href="/stylesheets/symple.player.css" />
+	<link rel="stylesheet" href="/stylesheets/app.css" />
+	<link rel="stylesheet" href="/stylesheets/style.css" />
+	<link rel="stylesheet" href="/stylesheets/wazy.css" />
+
+
+	<script type="text/javascript" src="/javascripts/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="/javascripts/bootstrap.js"></script>
+
+
+</head>
+<body>
+	<div class="container">
+
+      <div class="row">
+        <div class="col-lg-12">
+          {{#if success_msg}}
+            <div class="alert alert-success">{{success_msg}}</div>
+          {{/if}}
+
+          {{#if error_msg}}
+            <div class="alert alert-danger">{{error_msg}}</div>
+          {{/if}}
+
+          {{#if error}}
+            <div class="alert alert-danger">{{error}}</div>
+          {{/if}}
+        </div>
+			</div>
+
+			<!-- {{{body}}} -->
+      <link rel="stylesheet" href="/stylesheets/topnav.css" />
+      <link rel="stylesheet" href="/stylesheets/bootstrap.min.css" />
+
+
+
+      <div id="particles-js"></div>
+
+      {{#if user}}
+        <input type="hidden" id="userID" value={{user.username}} >
+      {{else}}
+        <input type="hidden" id="userID" value="DefaultUserID" >
+      {{/if}}
+
+
+      <div class="topnav" style="visibility:hidden">
+        <div class="login-container">
+          <form>
+            <input type="text" id="remoteid"  placeholder="Remot User" autocorrect=off autocapitalize=off required/>
+            <button type="button"  id="leave-room" class="btn btn-danger" onclick="" >Hungup</button>
+            <button type="button"  id="open-room" class="btn btn-success" onclick="call(this)" >Call</button>
+          </form>
+        </div>
       </div>
-    </div>
-  </div>
-</div>
 
 
-<script type="text/javascript" src="javascripts/socket.io.js"></script>
-<script type="text/javascript" src="javascripts/Users.js"></script>
+      <div style="margin-top:15%;">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="list-group" id="list-users">
+              <a class="list-group-item list-group-item-action h4 text-center text-light bg-secondary"> On line Users </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <script type="text/javascript" src="javascripts/socket.io.js"></script>
+      <script type="text/javascript" src="javascripts/Users.js"></script>
+      <!-- //{{{body}}} -->
+
+			<footer class="footer text-light text-center" style="margin-bottom: 0;"><p>&copy; 2018 EURL R.Grid, Ritec-Group Inc, Boumerdes</p></footer>
+
+    </div> <!-- /container -->
+</body>
+</html>

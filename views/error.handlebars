@@ -1,32 +1,100 @@
 
-<h1 style="display: none">{{message}}</h1>
-<h2 style="display: none">{{ error.status }}</h2>
-<pre style="display: none;">{{error.stack}}</pre>
+<!-- .................................................................
+//.RRRRRRRRRR..........GGGGGGGG....GRRRRRRRRR...III..IDDDDDDDD.....
+//.RRRRRRRRRRR........GGGGGGGGGG...GRRRRRRRRRR..III..IDDDDDDDDD....
+//.RRRRRRRRRRR.......GGGGGGGGGGGG..GRRRRRRRRRR..III..IDDDDDDDDDD...
+//.RRR.....RRR.......GGGG....GGGG..GRR.....RRR..III..IDD....DDDD...
+//.RRR.....RRR.......GGG...........GRR.....RRR..III..IDD.....DDDD..
+//.RRR...RRRRR.......GGG...........GRR...RRRRR..III..IDD.....DDDD..
+//.RRRRRRRRRRR.......GGG...GGGGGG..GRRRRRRRRRR..III..IDD.....DDDD..
+//.RRRRRRRRRR........GGG...GGGGGG..GRRRRRRRRR...III..IDD.....DDDD..
+//.RRRRRRRRRR........GGG......GGG..GRRRRRRRRR...III..IDD.....DDDD..
+//.RRR...RRRR........GGGG.....GGG..GRR...RRRR...III..IDD....DDDD...
+//.RRR....RRRR.......GGGGGGGGGGGG..GRR....RRRR..III..IDDDDDDDDDD...
+//.RRR....RRRR..... ..GGGGGGGGGGG..GRR....RRRR..III..IDDDDDDDDD....
+//.RRR.....RRRR...0....GGGGGGGGG...GRR.....RRRR.III..IDDDDDDDD.....
+//................................................................. -->
 
-<script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
-<!-- Custom Theme files -->
-<link href="../stylesheets/404.css" rel="stylesheet" type="text/css" media="all" />
-<!-- //Custom Theme files -->
-<!-- web font -->
-<link href='//fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800' rel='stylesheet' type='text/css'><!--web font-->
-<!-- //web font -->
 
-	<div class="agileits-main">
-		<div class="agileinfo-row">
+<!DOCTYPE html>
+<html>
+<head>
 
-			<div class="w3layouts-errortext">
-				<h2>4<span>0</span>4</h2>
+	<title>R.GRID</title>
 
-				<h1>Sorry! The page you were looking for could not be found </h1>
-				<p class="w3lstext">The link that can not be found. Please check the url or go <a onclick="history.back(-1)" >Back</a> and see if you can locate what you are looking for </p>
-				<div class="agile-search">
-					<form action="#" method="post">
-						<input type="text" name="Search" placeholder="Enter your search term..." id="search" required="">
-						<input type="submit" value="Search">
-					</form>
-				</div>
+	<meta name="format-detection" content="telephone=yes" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
+	<link rel="stylesheet" href="/stylesheets/font-awesome.min.css">
+	<link rel="stylesheet" href="/fonts/material-icons.css">
+
+	<link rel="stylesheet" href="/stylesheets/bootstrap.css" />
+	<link rel="stylesheet" href="/stylesheets/bootstrap-theme.min.css" />
+	<link rel="stylesheet" href="/stylesheets/symple.player.css" />
+	<link rel="stylesheet" href="/stylesheets/app.css" />
+	<link rel="stylesheet" href="/stylesheets/style.css" />
+
+
+	<script type="text/javascript" src="/javascripts/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="/javascripts/bootstrap.js"></script>
+
+
+</head>
+<body>
+	<div class="container">
+
+      <div class="row">
+        <div class="col-lg-12">
+          {{#if success_msg}}
+            <div class="alert alert-success">{{success_msg}}</div>
+          {{/if}}
+
+          {{#if error_msg}}
+            <div class="alert alert-danger">{{error_msg}}</div>
+          {{/if}}
+
+          {{#if error}}
+            <div class="alert alert-danger">{{error}}</div>
+          {{/if}}
+        </div>
 			</div>
-		</div>
-	</div>
-	<!-- //main -->
+
+			<!-- {{{body}}} -->
+
+			<h1 style="display: none">{{message}}</h1>
+			<h2 style="display: none">{{ error.status }}</h2>
+			<pre style="display: none;">{{error.stack}}</pre>
+
+			<script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+			<!-- Custom Theme files -->
+			<link href="../stylesheets/404.css" rel="stylesheet" type="text/css" media="all" />
+			<!-- //Custom Theme files -->
+			<!-- web font -->
+			<link href='//fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800' rel='stylesheet' type='text/css'><!--web font-->
+			<!-- //web font -->
+
+				<div class="agileits-main">
+					<div class="agileinfo-row">
+
+						<div class="w3layouts-errortext">
+							<h2>4<span>0</span>4</h2>
+
+							<h1>Sorry! The page you were looking for could not be found </h1>
+							<p class="w3lstext">The link that can not be found. Please check the url or go <a onclick="history.back(-1)" >Back</a> and see if you can locate what you are looking for </p>
+							<div class="agile-search">
+								<form action="#" method="post">
+									<input type="text" name="Search" placeholder="Enter your search term..." id="search" required="">
+									<input type="submit" value="Search">
+								</form>
+							</div>
+
+						</div>
+					</div>
+				</div>
+				<!-- //{{{body}}} -->
+
+			<footer class="footer text-light text-center" style="margin-bottom: 0;"><p>&copy; 2018 EURL R.Grid, Ritec-Group Inc, Boumerdes</p></footer>
+
+    </div> <!-- /container -->
+</body>
+</html>

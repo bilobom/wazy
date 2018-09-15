@@ -2,41 +2,26 @@
 
 <link rel="stylesheet" href="/stylesheets/topnav.css" />
 
+<input type="hidden" id="meetingRoom" value="">
 
+{{#if user}}
+  <input type="hidden" id="userID" value={{user.username}} >
+{{else}}
+  <input type="hidden" id="userID" value="DefaultUserID" >
+{{/if}}
 
 
 <div id="particles-js"></div>
-<script type="text/javascript" src="/javascripts/particles.min.js"></script>
-<script >
-/* particlesJS.load(@dom-id, @path-json, @callback (optional)); */
-particlesJS.load('particles-js', '../particlesjs-config.json', function() {
-});
-</script>
 
-<div id="logo" class="col-xs-2 col-sm-3 col-lg-4" >
-  <img src="/images/rgrid.png" class="img-responsive" style="width: inherit" />
-</div>
+
 
 
 <div class="topnav">
-  <select class="form-control-sm" id="select-codec">
-    <option value="vp8">VP8</option>
-    <option value="vp9">VP9</option>
-    <option value="h264">H264</option>
-  </select>
-
-  <select  class="form-control-sm"  id="select-resolution">
-    <option value="full-hd">Full HD</option>
-    <option value="Hd">HD</option>
-    <option value="default">Default</option>
-  </select>
-
   <div class="login-container">
-    <form action="/action_page.php">
-      <input type="text" id="room-id"  placeholder="room" autocorrect=off autocapitalize=off >
-      <input type="password" placeholder="password" id="room-password" autocomplete=off >
-      <button type="button"  id="leave-room" class="btn btn-secondary">Leave</button>
-      <button type="button"  id="open-room" class="btn btn-success">Meet</button>
+    <form >
+      <input type="text" id="room-id"  placeholder="Remot User" autocorrect=off autocapitalize=off >
+      <button type="button"  id="leave-room" class="btn btn-danger" onclick="leaveRoom()" >Hungup</button>
+      <button type="button"  id="open-room" class="btn btn-success" onclick="call()" >Call</button>
     </form>
   </div>
 </div>
@@ -69,9 +54,9 @@ particlesJS.load('particles-js', '../particlesjs-config.json', function() {
                 <span class="input-group-btn">
                   <button class="btn btn-default direct-user"  type="button">@</button>
                 </span>
-                <input type="text" class="form-control message-text" id="input-text" autocomplete="on" placeholder="Type your message here" />
+                <input type="text" class="form-control message-text" id="input-text" autocomplete="off" placeholder="Type your message here" />
                 <span class="input-group-btn">
-                  <button class="btn btn-default" id="sendMessage">Send!</button>
+                  <button id="send" class="btn btn-default" onclick="sendMessage()">Send!</button>
                 </span>
               </div>
           </li>
@@ -85,16 +70,79 @@ particlesJS.load('particles-js', '../particlesjs-config.json', function() {
 
 
 
+<!-- Globales Js Non Separate
+
 <script type="text/javascript" src="cordova.js"></script>
-<script type="text/javascript" src="javascripts/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="javascripts/DetectRTC.js"></script>
+<script type="text/javascript" src="javascripts/adapter.js"></script>
 <script type="text/javascript" src="javascripts/popper.js"></script>
-<script type="text/javascript" src="javascripts/bootstrap.js"></script>
-<script type="text/javascript" src="javascripts/index.js"></script>
 <script type="text/javascript" src="javascripts/socket.io.js"></script>
+<script type="text/javascript" src="javascripts/index.js"></script>
 <script type="text/javascript" src="javascripts/RTCMultiConnection.js"></script>
 <script type="text/javascript" src="javascripts/FileBufferReader.js"></script>
 <script type="text/javascript" src="javascripts/getHTMLMediaElement.js"></script>
 <script type="text/javascript" src="javascripts/getStats.js"></script>
-<script type="text/javascript" src="javascripts/adapter.js"></script>
 <script type="text/javascript" src="javascripts/MediaStreamRecorder.js"></script>
+
+ -->
+
+
+<!--  Globales JS
+
+<script type="text/javascript" src="javascripts/globals.js"></script>
+<script type="text/javascript" src="javascripts/DetectRTC.js"></script>
+<script type="text/javascript" src="javascripts/CodecsHandler.js"></script>
+<script type="text/javascript" src="javascripts/RTCPeerConnection.js"></script>
+<script type="text/javascript" src="javascripts/IceServers.js"></script>
+<script type="text/javascript" src="javascripts/Screen-Capturing.js"></script>
+<script type="text/javascript" src="javascripts/TranslationHandler.js"></script>
+<script type="text/javascript" src="javascripts/Messenger.js"></script>
+<script type="text/javascript" src="javascripts/FileProgressBarHandler.js"></script>
+<script type="text/javascript" src="javascripts/ios-hacks.js"></script>
+<script type="text/javascript" src="cordova.js"></script>
+<script type="text/javascript" src="javascripts/popper.js"></script>
+<script type="text/javascript" src="javascripts/FileBufferReader.js"></script>
+<script type="text/javascript" src="javascripts/getStats.js"></script>
+<script type="text/javascript" src="javascripts/MediaStreamRecorder.js"></script>
+<script type="text/javascript" src="javascripts/stream.js"></script>
+/Globales JS-->
+
+
+
+<!-- Custom1 -->
+
+<script type="text/javascript" src="cordova.js"></script>
+<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="js/DetectRTC.js"></script>
+<script type="text/javascript" src="js/popper.js"></script>
+<script type="text/javascript" src="js/index.js"></script>
+<script type="text/javascript" src="js/socket.io.js"></script>
+<script type="text/javascript" src="js/RTCMultiConnection.js"></script>
+<script type="text/javascript" src="js/FileBufferReader.js"></script>
+<script type="text/javascript" src="js/getHTMLMediaElement.js"></script>
+<script type="text/javascript" src="js/getStats.js"></script>
+<script type="text/javascript" src="js/adapter.js"></script>
+<script type="text/javascript" src="js/MediaStreamRecorder.js"></script>
+
+
+<!-- /Custom1 -->
+
+
+<!--  Custom2
+<script type="text/javascript" src="javascripts/DetectRTC.js"></script>
+<script type="text/javascript" src="javascripts/adapter.js"></script>
+<script type="text/javascript" src="javascripts/RTCPeerConnection.js"></script>
+<script type="text/javascript" src="javascripts/stream.js"></script>
+<script type="text/javascript" src="javascripts/globals.js"></script>
+<script type="text/javascript" src="javascripts/Messenger.js"></script>
+<script type="text/javascript" src="javascripts/FileBufferReader.js"></script>
+<script type="text/javascript" src="javascripts/CodecsHandler.js"></script>
+
+
+<script type="text/javascript" src="javascripts/getHTMLMediaElement.js"></script>
+<script type="text/javascript" src="javascripts/IceServers.js"></script>
+<script type="text/javascript" src="javascripts/socket.io.js"></script>
+<script type="text/javascript" src="javascripts/RTCMultiConnection.js"></script>
+<script type="text/javascript" src="javascripts/index.js"></script>
+
+/Custom2 -->
