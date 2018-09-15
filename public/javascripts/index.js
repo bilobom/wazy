@@ -65,27 +65,21 @@ function appInitialize(){
 	RTCevents();
 
 	(function keepCheckingForRoom() {
+      debug('-------- keepCheckingForRoom --------');
 			if(!connection.receiveFirstRemoteStream) {
 					setTimeout(keepCheckingForRoom, 3000);
 					return;
 			}
 			connection.checkPresence(connection.sessionid, function(isRoomExist, roomid) {
-					if(connection.isInitiator) {
-							document.querySelector('h1').innerHTML = 'You are room owner!';
-							return;
-					}
 					if(connection.peers[connection.sessionid]) {
 							setTimeout(keepCheckingForRoom, 3000);
-							document.querySelector('h1').innerHTML = 'Room owner is in the room!';
 							return;
 					}
 					if (isRoomExist === true) {
 							connection.join(roomid);
-							document.querySelector('h1').innerHTML = 'Rejoined the room!!!!';
 							setTimeout(keepCheckingForRoom, 3000);
 							return;
 					}
-					document.querySelector('h1').innerHTML = 'Room owner left. Rechecking for the room...';
 					setTimeout(keepCheckingForRoom, 3000);
 			});
 	})();
@@ -141,13 +135,13 @@ function initSoket(){
 
 
 function RTCevents(){
+
   connection.onRoomFull = function(roomid) {
     connection.attachStreams.forEach(function(stream) {
        stream.stop();
     });
-
       alert('There is a call going On');
-  };
+   };
 
   connection.onstream = function(event) {
      debug(event);
@@ -225,9 +219,7 @@ function localStream(event){
    });
   mediaElement.style = "top: 20px;right: 20px;  height: 100%; width: 100%; transition: opacity 1s;";
   connection.videosContainer.appendChild(mediaElement);
-  setTimeout(function() {
-      mediaElement.play();
-  }, 1);
+  mediaElement.play();
   mediaElement.id = event.streamid;
   localStreamID=event.streamid;
   mediaElement.setAttribute('data-userid', event.userid);
@@ -237,20 +229,17 @@ function localStream(event){
 function remoteStream(event){
   connection.videosContainer = $('#remote-video')[0];
   var width = parseInt(connection.videosContainer.clientWidth);
-   var mediaElement = getHTMLMediaElement(event.mediaElement, {
-       title: event.userid,
-       width: width,
-       showOnMouseEnter: false
-   });
-   remoteUser=event.userid;
-   mediaElement.style = "display: block; height: 100%;object-fit: cover;position: absolute;-moz-transform: rotateY(180deg);-ms-transform: rotateY(180deg);-o-transform: rotateY(180deg);-webkit-transform: rotateY(180deg);transform: rotateY(180deg);transition: opacity 1s;width: 100%;";
+  var mediaElement = getHTMLMediaElement(event.mediaElement, {
+     title: event.userid,
+     width: width,
+     showOnMouseEnter: false
+  });
+  remoteUser=event.userid;
+  mediaElement.style = "display: block; height:100%;min-height:100%;width:100%;min-width:100%;object-fit: cover;position: absolute;-moz-transform: rotateY(180deg);-ms-transform: rotateY(180deg);-o-transform: rotateY(180deg);-webkit-transform: rotateY(180deg);transform: rotateY(180deg);transition: opacity 1s;";
   connection.videosContainer.appendChild(mediaElement);
-  setTimeout(function() {
-      mediaElement.play();
-  }, 1);
+  mediaElement.play();
   mediaElement.id = event.streamid;
   mediaElement.setAttribute('data-userid', event.userid);
-
 }
 
 
@@ -442,7 +431,7 @@ function Hungup(){
 }
 
 function reInitializeConnection(){
-  
+
 }
 
 function debug(str){
