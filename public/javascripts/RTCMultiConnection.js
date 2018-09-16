@@ -201,6 +201,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
                     connection.deletePeer(message.sender);
                 }
 
+
                 var userPreferences = {
                     extra: message.extra || {},
                     localPeerSdpConstraints: message.message.remotePeerSdpConstraints || {
@@ -700,7 +701,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
                 }
 
                 if (connection.enableLogs) {
-                    console.log('Remote peer\'s sdp:', message.sdp);
+                    //console.log('Remote peer\'s sdp:', message.sdp);
                 }
                 return;
             }
@@ -4454,7 +4455,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
                         sender: connection.userid,
                         password: password || false
                     };
-                    debug("room exist and sdp is set+ connectionDescription ="+JSON.stringify(connectionDescription) );
+                    //debug("room exist and sdp is set+ connectionDescription ="+JSON.stringify(connectionDescription) );
                     beforeJoin(connectionDescription.message, function() {
                         mPeer.onNegotiationNeeded(connectionDescription);
                     });
@@ -4464,7 +4465,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
                 var oldUserId = connection.userid;
                 connection.userid = connection.sessionid = localUserid || connection.sessionid;
                 connection.userid += '';
-                debug("connection.userid=================="+connection.userid);
+
                 connection.socket.emit('changed-uuid', connection.userid);
 
                 if (password) {
@@ -4476,7 +4477,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
                 if (isData(connection.session)) {
                     return;
                 }
-                debug("about to capture")
+                //("about to capture")
                 connection.captureUserMedia();
             });
         };
@@ -5261,7 +5262,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
 
             getUserMediaHandler({
                 onGettingLocalMedia: function(stream) {
-                    debug("-----------------------------streamis "+deser(stream));
+                    //debug("-----------------------------streamis "+deser(stream));
                     var videoConstraints = localMediaConstraints.video;
                     if (videoConstraints) {
                         if (videoConstraints.mediaSource || videoConstraints.mozMediaSource) {
