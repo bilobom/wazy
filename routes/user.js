@@ -14,7 +14,43 @@ function init(router) {
 	router.get('/login', function (req, res) {
 		res.render('login');
 	});
+	//@BILAL this combines both mobile and webb apps
+	router.get('/loginmobile', isAuth ,function(req, res, next) {
+	    var accessToken=generateToken();
+	    console.log("accessToken="+accessToken);
+	    return res.json({ allowed: 'true', accessToken: accessToken });
+	    //res.end();
+	  //next();
+	});
+	function isAuth(req , res , next ){
+	    username = req.query.username;
+	    password = req.query.password;
+		User.getUserByUsername(username, function (err, user) {
+		    console.log(username  + ' ------------- ' + password + ' -------- ' + user + ' -------- > err '+err )
+		    //if (err) throw err;
+		    console.log("error=="+err);
+		    if (!user || user === undefined || user === null) {
+			console.log('user null');
+			    //for json send we always need to return to prevent code from continuing execution.
+			return res.json({ allowed: 'false', reason: 'noUser' });
+			//res.end();
+		    }
+		    User.comparePassword(password, user.password, function (err, isMatch) {
+			//if (err) throw err;
+			if (isMatch) {
+			console.log('user is match');
+			    return next();
+			   //res.send('true');
+			} else {
+			console.log('user notMatch');
+			return res.json({ allowed: 'false', reason: 'notMatch' });
+			//res.end();
 
+			}
+		    });
+		});
+	}
+	//@BILAL END
 	// Login
 	router.get('/call', function (req, res) {
 //		if(req.isAuthenticated()){
