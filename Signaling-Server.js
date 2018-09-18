@@ -135,9 +135,17 @@ module.exports = exports = function(app, socketCallback) {
         }
         io.sockets.emit('UsersOnLine',onLineUsers,listOfUsers[newSocket.userid].sockets.length);
 
-
       });
 
+
+      newSocket.on('cancelCall',function(recever){
+        if(!!listOfUsers[recever] && !!listOfUsers[recever].sockets && listOfUsers[recever].sockets.length > 0 ){
+          recever = listOfUsers[recever];
+          recever.sockets.forEach(function(ReceverSocket) {
+            if(ReceverSocket) ReceverSocket.emit('cancelCall',recever);
+          });
+        }
+      });
 
       //@R.GRID
       function call(message){
