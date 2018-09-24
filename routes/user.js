@@ -23,8 +23,9 @@ function init(router) {
 	});
 
 	function isAuth(req , res , next ){
-    username = req.query.username;
-    password = req.query.password;
+   		 username = req.query.username;
+   		 password = req.query.password;
+		if(!username || !password) return res.json({allowed: 'false', reason:'badInput'})
 		User.getUserByUsername(username, function (err, user) {
 	    //if (err) throw err;
 	    console.log("error=="+err);
@@ -177,7 +178,7 @@ function init(router) {
 
 	function getToken(username,callback){
 		User.getUserByUsername(username, function (err, user) {
-			if(err) { console.error(err); return;
+			if(err) { console.error(err); return;}
 			if( user && callback ) callback(user.token);
 		});
 	}
