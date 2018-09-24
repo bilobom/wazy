@@ -177,12 +177,14 @@ function init(router) {
 
 	function getToken(username,callback){
 		User.getUserByUsername(username, function (err, user) {
-			if(err) { console.error(err); return;
+			if(err) { console.error(err); return; }
 			if( user && callback ) callback(user.token);
 		});
 	}
 
-
 }
 
 exports.init = init
+
+
+// The end !!
