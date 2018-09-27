@@ -1,17 +1,3 @@
-// Last Updated On: 2017-12-09 2:29:22 PM UTC
-
-// ________________
-// DetectRTC v1.3.6
-
-// Open-Sourced: https://github.com/muaz-khan/DetectRTC
-
-// --------------------------------------------------
-// Muaz Khan     - www.MuazKhan.com
-// MIT License   - www.WebRTC-Experiment.com/licence
-// --------------------------------------------------
-
-
-
 'use strict';
 
 (function() {
@@ -121,13 +107,13 @@
             }
             browserName = 'IE';
         }
-        // In Chrome, the true version is after 'Chrome'
+        // In Chrome, the true version is after 'Chrome' 
         else if (isChrome) {
             verOffset = nAgt.indexOf('Chrome');
             browserName = 'Chrome';
             fullVersion = nAgt.substring(verOffset + 7);
         }
-        // In Safari, the true version is after 'Safari' or after 'Version'
+        // In Safari, the true version is after 'Safari' or after 'Version' 
         else if (isSafari) {
             verOffset = nAgt.indexOf('Safari');
 
@@ -142,14 +128,14 @@
                 fullVersion = navigator.userAgent.split('Version/')[1].split(' ')[0];
             }
         }
-        // In Firefox, the true version is after 'Firefox'
+        // In Firefox, the true version is after 'Firefox' 
         else if (isFirefox) {
             verOffset = nAgt.indexOf('Firefox');
             browserName = 'Firefox';
             fullVersion = nAgt.substring(verOffset + 8);
         }
 
-        // In most other browsers, 'name/version' is at the end of userAgent
+        // In most other browsers, 'name/version' is at the end of userAgent 
         else if ((nameOffset = nAgt.lastIndexOf(' ') + 1) < (verOffset = nAgt.lastIndexOf('/'))) {
             browserName = nAgt.substring(nameOffset, verOffset);
             fullVersion = nAgt.substring(verOffset + 1);

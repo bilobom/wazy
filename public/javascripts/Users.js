@@ -16,26 +16,55 @@
 //.................................................................
 
 
-var userid = $('input#userID').val();
-
-var socketURL = '/';
+// var socketURL = socketURL;
 var socket = null ;
 
 // @Params
 var parameters = '';
+var havePermission = false ;
 
-var wantToMeet = false ;
+var modalRingingActive=false;
+var modalRintoneActive=false;
+// Audio Control
+var timeToStopCall=20000;
+// @Rining
+var ringing = new Audio('Audio/rining.mp3');
+ringing.loop = true;
+var RinginisPlaying = false;
+ringing.onplaying = function() {
+  RinginisPlaying = true;
+};
+ringing.onpause = function() {
+  RinginisPlaying = false;
+};
 
-parameters += '?soketType=' + 'socket';
-parameters += '&userid=' + userid;
+// @Rington
+var ringtone = new Audio('Audio/rington.mp3');
+ringtone.loop = true;
+var RingtonisPlaying = false;
+ringtone.onplaying = function() {
+  RingtonisPlaying = true;
+};
+ringtone.onpause = function() {
+  RingtonisPlaying = false;
+};
+// /Audio Control
 
+
+var remoteUserId ;
+
+function initSocketUser() {
+
+  parameters += '?soketType=' + 'socket';
+  parameters += '&userid=' + userid;
+  parameters += '&token='  + myAccessToken;
 
   try {
-      io.sockets = {};
+    io.sockets = {};
   } catch (e) {};
 
   try {
-      socket = io(socketURL + parameters);
+    socket = io(socketURL + parameters);
   } catch (e) {
     try{
       socket = io.connect(socketURL + parameters);
@@ -44,185 +73,257 @@ parameters += '&userid=' + userid;
 
 
   if (socketURL == '/') {
-      console.info('socket.io is connected at: ', location.origin + '/');
+    console.info('socketUser is connected at: ', location.origin + '/');
   } else {
-      console.info('socket.io is connected at: ', socketURL);
+    console.info('socketUser is connected at: ', socketURL);
   }
 
+  socket.on('accessRejected',function(reason){
+    alert(reason);
+  });
+
+  socket.on('UsersOnLine',function(users,all){
+    updateListOfUsers(users,all);
+  });
+
+  socket.on('inCammingCall',function(caller,video){
+    //debug('userid in inCammingCall ----------------------> ' + userid);
+    if(caller == userid ) return ;
+    title =  video ? 'in Camming video Call' : 'in Camming audio Call' ;
+    msg = video ? caller + ' want to audio call' : caller + ' want to video call' ;
+
+    document.getElementById('modalMessage').innerHTML=msg;
+    startRingtone();
+    $('#accept').click(function(){
+      stopRingtone();
+      //roomid = generateRoomId();
+      connection.dontCaptureUserMedia=false;
+      connection.dontAttachStream=false;
+      connection.getUserMedia(function () {
+        setTimeout(function(){
+          socket.emit('setResponse',caller,userid,true,roomid);
+          debug("rany b3at confirmation doka");
+        }, 3000);
+      },function (error) {
+        UserHaveProblemWithHisCamera(error);
+        reInitializeConnection();
+      });
+    });
+
+    $('#refuse').click(function(){
+      stopRingtone();
+      socket.emit('setResponse',caller,userid,false,roomid);
+    });
+  });
+
+  socket.on('getResponse',function(recever,accepted,roomid){
+    if( accepted ){
+     meet(true,roomid);
+      stopRinging();
+    } else {
+      stopRingtone();
+      stopRinging();
+      // UserHaveProblemWithHisCamera();
+      //Infom Of none-acceptance //TODO
+    }
+  });
 
 
-// Audio Control
+  socket.on('cancelCall',function(recever){
+    if(recever == userid) remoteCancelCall(recever);
 
-// @Rining
-var rining = new Audio('/Audio/rining.mp3');
-rining.loop = true;
-var RinginisPlaying = false;
-rining.onplaying = function() {
-  RinginisPlaying = true;
-};
-rining.onpause = function() {
-  RinginisPlaying = false;
-};
-
-// @Rington
-var rington = new Audio('/Audio/rington.mp3');
-rington.loop = true;
-var RingtonisPlaying = false;
-rington.onplaying = function() {
-  RingtonisPlaying = true;
-};
-rington.onpause = function() {
-  RingtonisPlaying = false;
-};
-
-// /Audio Control
+  });
 
 
-socket.on('UsersOnLine',function(users,all){
-  updateListOfUsers(users,all);
-});
+  // piratiw
+  // when you call an unexistant user or offline user
+  socket.on('userOffLine',function(recever){
+    alert( recever +' off line or Buzzy !!! ');
+  });
 
 
-socket.on('inCammingCall',function(caller,video){
-  if(caller == userid ) return ;
-  title =  video ? 'in Camming video Call' : 'in Camming audio Call' ;
-  msg = video ? caller + ' is calling you videoCall !!' : caller + ' is calling you !!' ;
-  Confirm(title, msg, 'answer', 'hungup' ,caller,video);
-  rington.play();
-});
+}
 
 
-socket.on('getResponse',function(recever,accepted,roomid){
-  rining.pause();
-  if( accepted && roomid && wantToMeet ) meet(recever,roomid);
-});
+function UserHaveProblemWithHisCamera(error) {
+  alert("problem with the camera" + error);
+}
 
 
-socket.on('userOffLine',function(recever){
-  alert( recever +' off line or Buzzy !!! ');
-});
+var once = false;
+function remoteCancelCall(remoteid){
+   stopRingtone();
+}
+
+function meet(iAmCaller,roomid,callback,callbackErrorMeet){
+  callback = callback || function(){};
+  callbackErrorMeet = callbackErrorMeet || function(){};
+    connection.dontCaptureUserMedia=false;
+    connection.dontAttachStream=false;
+  //connection.roomid=roomid;
+  //iAmCaller ? connection.open(roomid,function(){show(); callback();}) : connection.join(roomid,function(){show();callback();});
+  if (iAmCaller) {
+    connection.leave(function () {});
+    debug("rooooooom ==" + roomid);
+      setTimeout(function () {
+        connection.join(roomid/*,function(){show();callback();}*/);
+        debug("joined za3ma and about to callback rih")
+        callback();
+      },500);
+
+  }else{
+    //opening the gates hayaaaaa
+    debug("ana 3aytooli rany rayeh getUserMedia w");
+
+
+    // connection.renegotiate(null,function () {
+    //   debug("sibon negotiatit ");
+    //   callback();
+    // });
+  }
+  console.log("roomid ===== "+roomid);
+}
+
+function show(){
+  console.log("connection.userid====="+connection.userid);
+  console.log("connection.session====="+connection.sessionid);
+  console.log("connection.roomid====="+connection.roomid);
+}
+
+
+function startRinging(){
+  if (modalRintoneActive) {stopRingtone()}
+  modalRinging = document.getElementById('modalRinging');
+  ringing.play();
+  modalRinging.show();
+  modalRingingActive=true;
+}
+
+
+function stopRinging(){
+  ringing.pause();
+  modalRinging.hide();
+  modalRingingActive=false;
+}
+
+
+function startRingtone(){
+  if (modalRingingActive) {stopRinging()}
+  modalRingtone = document.getElementById('modalRingtone');
+  modalRingtone.show();
+  ringtone.play();
+  modalRintoneActive=true;
+}
+
+
+function stopRingtone(){
+  ringtone.pause();
+  modalRingtone.hide();
+  modalRintoneActive=false;
+}
+
+
+function generateRoomId() {
+  var text = "";
+  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  for (var i = 0; i < 5; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+  return text;
+}
+
+
+function getRandomString() {
+  if (window.crypto && window.crypto.getRandomValues && navigator.userAgent.indexOf('Safari') === -1) {
+      var a = window.crypto.getRandomValues(new Uint32Array(3)),
+          token = '';
+      for (var i = 0, l = a.length; i < l; i++) {
+          token += a[i].toString(36);
+      }
+      return token;
+  } else {
+      return (Math.random() * new Date().getTime()).toString(36).replace(/\./g, '');
+  }
+}
+
+
+function cancelCall(){
+  //should emit cancelling
+  socket.emit('cancelCall',remoteUserId);
+  stopRinging();
+}
 
 
 function call(remoteid,video){
-  wantToMeet = true ;
-  console.log(userid +' Call ' + remoteid );
-  // on.('call', (caller recever video) )
+  remoteUserId = remoteid ;
+  startRinging();
   socket.emit('call',userid,remoteid,video);
-  rining.play();
+  setTimeout(function(){
+    stopRinging();
+
+  }, timeToStopCall);
 }
 
 
-function meet(remoteid , roomid){
-  alert('meet '+ remoteid + ' in ---> '+roomid)
+function closeApp(){
+  navigator.app.exitApp();
 }
-
 
 function updateListOfUsers(users,all){
-  console.log(users);
-
-
-  $('#list-users').html('<div class="list-group" id="list-users"><a class="list-group-item list-group-item-action h4 text-center text-light bg-secondary"> On line Users </a><div>');
-
+  $('#onlineUsers').empty();
+  debug(users);
   users.forEach(function(username) {
     if(username !== userid ){
       appendUsertoList(username);
     }
   });
+}
 
+function closeUserSocket() {
+  try {
+      io.sockets = {};
+  } catch (e) {};
+
+  if (!socket) return;
+
+  if (typeof socket.disconnect === 'function') {
+      socket.disconnect();
+  }
+
+  if (typeof socket.resetProps === 'function') {
+      socket.resetProps();
+  }
+  socket = null;
 }
 
 
 function appendUsertoList(username) {
-  $userHTML = '';
+  //onclick="wantingToChat()"
+  $userHTML='<ons-list-item class="menu-item"  tappable>';
+  $userHTML+= '<ons-icon size="25px" style="color:green;" icon="fa-user"></ons-icon>&nbsp;&nbsp;';
+  $userHTML+= username;
+  $userHTML+='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<ons-icon id="videoCall';
+  $userHTML+= username;
+  $userHTML+= '" icon="md-videocam" size="25px"></ons-icon>';
+  $userHTML+='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<ons-icon id="audioCall';
+  $userHTML+= username;
+  $userHTML+= '" icon="md-phone" size="25px"></ons-icon>';
+  $userHTML+='</ons-list-item>';
 
-  $userHTML+= '<a class="list-group-item list-group-item-action text-black-50">';
-  $userHTML+= '<i class="fa fa-user" style="font-size:30px;position:relative;margin-right:1%;">';
-  $userHTML+= ' <i class="fa fa-circle" style="color:green;font-size:15px;position:absolute;left:15px;top:15px;"></i>';
-  $userHTML+= '</i> ';
-  $userHTML+= username
-  $userHTML+= ' <i id="audioCall' + username + '" class="material-icons btn" style="color:blue;font-size:22px;float:right;" >phone_forwarded</i>';
-  $userHTML+= ' <i id="videoCall' + username + '" class="fa fa-video-camera btn" style="color:blue;font-size:22px;float:right;"  ></i></a>';
-
-  $('#list-users').append($userHTML);
+  //$userHTML+= ' <i id="audioCall' + username + '" class="material-icons btn" style="color:blue;font-size:22px;float:right;" >phone_forwarded</i>';
+  //$userHTML+= ' <i id="videoCall' + username + '" class="fa fa-video-camera btn" style="color:blue;font-size:22px;float:right;"  ></i></a>';
+   //My ons-list element
+  $('#onlineUsers').append($userHTML);
 
   $('#audioCall'+username).click(function(){
-      call(username,false);
+    call(username,false);
   });
 
   $('#videoCall'+username).click(function(){
-      call(username,true);
+    call(username,true);
   });
-
-
 }
-
-
-
-function Confirm(title, msg, $true, $false,caller,video) { /*change*/
-
-
-  var $style = '' +
-        'body {font-family: sans-serif}' +
-        '.dialog-ovelay {position: absolute;top: 0;left: 0;right: 0;bottom: 0;background-color: rgba(0, 0, 0, 0.50);z-index: 999999}'+
-        '.dialog-ovelay .dialog {width: 400px;margin: 100px auto 0;background-color: #fff;box-shadow: 0 0 20px rgba(0,0,0,.2);border-radius: 3px;overflow: hidden}'+
-        '.dialog-ovelay .dialog header {padding: 10px 8px;background-color: #f6f7f9;border-bottom: 1px solid #e5e5e5}'+
-        '.dialog-ovelay .dialog header h3 {font-size: 14px;margin: 0;color: #555;display: inline-block}'+
-        '.dialog-ovelay .dialog header .fa-close {float: right;color: #c4c5c7;cursor: pointer;transition: all .5s ease;padding: 0 2px;border-radius: 1px    }'+
-        '.dialog-ovelay .dialog header .fa-close:hover {color: #b9b9b9}'+
-        '.dialog-ovelay .dialog header .fa-close:active {box-shadow: 0 0 5px #673AB7;color: #a2a2a2}'+
-        '.dialog-ovelay .dialog .dialog-msg {padding: 12px 10px}'+
-        '.dialog-ovelay .dialog .dialog-msg p{margin: 0;font-size: 15px;color: #333}'+
-        '.dialog-ovelay .dialog footer {border-top: 1px solid #e5e5e5;padding: 8px 10px}'+
-        '.dialog-ovelay .dialog footer .controls {direction: rtl}';
-        '.dialog-ovelay .dialog footer .controls .button {padding: 5px 15px;border-radius: 3px}'+
-        '.button {cursor: pointer}'+
-        '.button-default {background-color: rgb(248, 248, 248);border: 1px solid rgba(204, 204, 204, 0.5);color: #5D5D5D;}'+
-        '.button-danger {background-color: #f44336;border: 1px solid #d32f2f;color: #f5f5f5}'+
-        '.link {padding: 5px 10px;cursor: pointer}';
-
-
-  var $content =    "<style>"+$style+"</style>"+
-                    "<div class='dialog-ovelay'>" +
-                    "<div class='dialog'><header>" +
-                     " <h3> " + title + " </h3> " +
-                     "<i class='fa fa-close'></i>" +
-                 "</header>" +
-                 "<div class='dialog-msg'>" +
-                     " <p> " + msg + " </p> " +
-                 "</div>" +
-                 "<footer>" +
-                     "<div class='controls'>" +
-                         " <button class='button button-danger  doAction'>" + $true + "</button> " +
-                         " <button class='button button-default cancelAction'>" + $false + "</button> " +
-                     "</div>" +
-                 "</footer>" +
-               "</div>" +
-              "</div>" ;
-
-  roomid = caller+'-'+userid;
-
-
-  $('body').prepend($content);
-  $('.doAction').click(function () {
-    // window.open($link, "_blank"); /*new*/
-    $(this).parents('.dialog-ovelay').fadeOut(500, function () {
-      socket.emit('setResponse',caller,userid,true,roomid);
-      meet(caller,roomid);
-      rington.pause();
-      $(this).remove();
-    });
-  });
-  $('.cancelAction, .fa-close').click(function () {
-    $(this).parents('.dialog-ovelay').fadeOut(500, function () {
-      socket.emit('setResponse',caller,userid,false,roomid);
-      rington.pause();
-      $(this).remove();
-    });
-  });
-
-}
-
-
 
 
 

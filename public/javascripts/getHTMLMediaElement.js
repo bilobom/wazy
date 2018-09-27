@@ -11,7 +11,7 @@ function getHTMLMediaElement(mediaElement, config) {
 
         var mediaStream = mediaElement;
         mediaElement = document.createElement(mediaStream.getVideoTracks().length ? 'video' : 'audio');
-
+        mediaElement.autoplay=true;
         if ('srcObject' in mediaElement) {
             mediaElement.srcObject = mediaStream;
         } else {
@@ -208,7 +208,7 @@ function getHTMLMediaElement(mediaElement, config) {
 
             var isFullScreeMode = document.webkitIsFullScreen || document.mozFullScreen || document.fullscreen;
 
-            mediaElementContainer.style.width = (isFullScreeMode ? (window.innerWidth - 20) : config.width) + 'px';
+            //mediaElementContainer.style.width = (isFullScreeMode ? (window.innerWidth - 20) : config.width) + 'px';
             mediaElementContainer.style.display = isFullScreeMode ? 'block' : 'inline-block';
 
             if (config.height) {
@@ -249,13 +249,13 @@ function getHTMLMediaElement(mediaElement, config) {
 
     if (!config.width) config.width = (innerWidth / 2) - 50;
 
-    mediaElementContainer.style.width = config.width + 'px';
+    //mediaElementContainer.style.width = config.width + 'px';
 
     if (config.height) {
         mediaBox.style.height = config.height + 'px';
     }
 
-    mediaBox.querySelector('video').style.maxHeight = innerHeight + 'px';
+    //mediaBox.querySelector('video').style.maxHeight = innerHeight + 'px';
 
     var times = 0;
 
@@ -323,7 +323,8 @@ function getHTMLMediaElement(mediaElement, config) {
 
     mediaElementContainer.media = mediaElement;
 
-    return mediaElementContainer;
+    //return mediaElementContainer;
+    return mediaElement
 }
 
 // __________________
@@ -497,5 +498,5 @@ function getAudioElement(mediaElement, config) {
 
     mediaElementContainer.media = mediaElement;
 
-    return mediaElementContainer;
+    return mediaElement;
 }

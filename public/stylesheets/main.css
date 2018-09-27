@@ -1,3 +1,29 @@
+.login-form {
+  text-align: center;
+  width: 80%;
+  margin: 30px auto 0;
+}
+
+input[type=email], input[type=password] {
+  display: block;
+  width: 100%;
+  margin: 0 auto;
+  outline: none;
+  height: 100%;
+  padding-top: 15px;
+  padding-bottom: 16px;
+}
+
+.login-button {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.forgot-password {
+  display: block;
+  margin: 8px auto 0 auto;
+  font-size: 14px;
+}
 .hidden {
   display: none;
 }
@@ -14,47 +40,6 @@ a:hover {
 
 #room-link a {
   white-space: nowrap;
-}
-
-body {
-  background-color: #333;
-  color: #fff;
-  font-family: 'Roboto', 'Open Sans', 'Lucida Grande', sans-serif;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-}
-
-#remote-canvas {
-  display: none;
-  height: 100%;
-  margin: 0 auto;
-  width: 100%;
-}
-
-div.warning {
-  background-color: #a80202;
-  color: black;
-  font-weight: 400;
-  opacity: .9;
-}
-
-#container {
-  height: 100%;
-  position: absolute;
-}
-
-#info-div {
-  z-index: 3;
-}
-
-#room-link {
-  margin: 0 0 29px 0;
-}
-
-#status {
-  z-index: 4;
 }
 
 #videos {
@@ -91,23 +76,6 @@ footer > div {
   width: calc(100% - 20px);
 }
 
-footer > div.active {
-  display: block;
-  opacity: .8;
-}
-
-div#privacy {
-  bottom: 7px;
-  color: gray;
-  position: absolute;
-  right: 10px;
-}
-
-div#privacy a {
-  color: gray;
-  font-size: 14px;
-}
-
 html {
   height: 100%;
   margin: 0;
@@ -130,20 +98,18 @@ label {
   transform: scale(-1, 1);
   transition: opacity 1s;
   width: 100%;
-  z-index: 3;
 }
 
 #mini-video {
-    border: 1px solid gray;
-    top: 20px;
-    right: 20px;
-    z-index: 1;
-    height: 25%;
-    width: 25%;
-    max-height: 25%;
-    max-width: 25%;
-    position: absolute;
-    transition: opacity 1s;
+  border: 1px solid gray;
+  top: 20px;
+  right: 20px;
+  z-index: 1;
+  /* video div is flipped horizontally when active*/
+  max-height: 17%;
+  max-width: 17%;
+  position: absolute;
+  transition: opacity 1s;
 }
 
 #mini-video.active {
@@ -171,264 +137,359 @@ label {
   opacity: 1;
   z-index: 1;
 }
+.progress-circular {
+    -webkit-animation: progress__rotate 2s linear infinite;
+    -moz-animation: progress__rotate 2s linear infinite;
+    -o-animation: progress__rotate 2s linear infinite;
+    animation: progress__rotate 2s linear infinite;
+    height: 250px;
+    position: relative;
+    width: 250px;
+  }
+  .progress-circular__primary {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+    -webkit-animation: progress__dash 1.5s ease-in-out infinite;
+    -moz-animation: progress__dash 1.5s ease-in-out infinite;
+    -o-animation: progress__dash 1.5s ease-in-out infinite;
+    animation: progress__dash 1.5s ease-in-out infinite;
+    stroke: #415ed1;
+    -webkit-transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+    -moz-transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+    -o-transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 
-#confirm-join-div {
-  position: absolute;
-  text-align: center;
-  top: 80%;
-  width: 100%;
-  z-index: 5;
-}
+  @-moz-keyframes progress__rotate {
+    100% {
+      -moz-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+  @-webkit-keyframes progress__rotate {
+    100% {
+      -webkit-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+  @-o-keyframes progress__rotate {
+    100% {
+      -o-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes progress__rotate {
+    100% {
+      -webkit-transform: rotate(360deg);
+      -moz-transform: rotate(360deg);
+      -o-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+  @-moz-keyframes progress__dash {
+    0% {
+      stroke-dasharray: 10%, 241.32%;
+      stroke-dashoffset: 0%;
+    }
+    50% {
+      stroke-dasharray: 201%, 50.322%;
+      stroke-dashoffset: -100%;
+    }
+    100% {
+      stroke-dasharray: 10%, 241.32%;
+      stroke-dashoffset: -251.32%;
+    }
+  }
+  @-webkit-keyframes progress__dash {
+    0% {
+      stroke-dasharray: 10%, 241.32%;
+      stroke-dashoffset: 0%;
+    }
+    50% {
+      stroke-dasharray: 201%, 50.322%;
+      stroke-dashoffset: -100%;
+    }
+    100% {
+      stroke-dasharray: 10%, 241.32%;
+      stroke-dashoffset: -251.32%;
+    }
+  }
+  @-o-keyframes progress__dash {
+    0% {
+      stroke-dasharray: 10%, 241.32%;
+      stroke-dashoffset: 0%;
+    }
+    50% {
+      stroke-dasharray: 201%, 50.322%;
+      stroke-dashoffset: -100%;
+    }
+    100% {
+      stroke-dasharray: 10%, 241.32%;
+      stroke-dashoffset: -251.32%;
+    }
+  }
+  @keyframes progress__dash {
+    0% {
+      stroke-dasharray: 10%, 241.32%;
+      stroke-dashoffset: 0%;
+    }
+    50% {
+      stroke-dasharray: 201%, 50.322%;
+      stroke-dashoffset: -100%;
+    }
+    100% {
+      stroke-dasharray: 10%, 241.32%;
+      stroke-dashoffset: -251.32%;
+    }
+  }
 
-#confirm-join-div div {
-  font-size: 1.5em;
-  margin-bottom: 10px;
-}
+/*calling*/
 
-/*////// room selection start ///////////////////*/
-#recent-rooms-list {
-  list-style-type: none;
-  padding: 0 15px;
-}
-
-button {
-  background-color: #4285F4;
-  border: none;
-  border-radius: 2px;
-  -webkit-box-shadow: 1px 1px 5px 0 rgba(0,0,0,.5);
-  -moz-box-shadow: 1px 1px 5px 0 rgba(0,0,0,.5);
-  box-shadow: 1px 1px 5px 0 rgba(0,0,0,.5);
-  color: white;
-  font-size: 0.8em;
-  height: 2.75em;
-  margin: 0 5px 20px 5px;
-  padding: 0.5em 0.7em 0.5em 0.7em;
-  width: 8em;
-}
-
-button:active {
-  background-color: #3367D6;
-}
-
-button:hover {
-  background-color: #3B78E7;
-}
-
-button:focus {
-  -webkit-box-shadow: 0 10px 15px 0 rgba(0,0,0,.5);
-  -moz-box-shadow: 0 10px 15px 0 rgba(0,0,0,.5);
-  box-shadow: 0 10px 15px 0 rgba(0,0,0,.5);
-  outline: none;
-}
-
-button[disabled] {
-  background-color: rgb(30, 30, 30);
-  background-color: rgba(255, 255, 255, 0.12);
-  color: rgb(76, 76, 76);
-  color: rgba(255, 255, 255, 0.3);
-}
-
-input[type=text] {
-  background-color: transparent;
-  border: none;
-  border-bottom: solid 1px #4c4c4f;
-  color: #fff;
-  display: block;
-  font-size: 1em;
-  margin-right: 20px;
-  padding:.4em 0;
-  width: 100%;
-}
-
-input[type="text"]:focus {
-  border-bottom: solid 2px #4285F4;
-  outline: none;
-}
-
-input[type="text"].invalid {
-  border-bottom: solid 2px #F44336;
-}
-
-label.error-label {
-  color: #F44336;
-  font-size: .85em;
-  font-weight: 200;
+.h-list, .actions {
   margin: 0;
+  padding: 0;
+  list-item-style: none;
+}
+.h-list > li, .actions > li {
+  display: inline-block;
 }
 
-#room-id-input-div {
-  margin: 15px;
+/* main */
+.container {
+  position: relative;
+  height: 140px;
+  width: 300px;
+  margin: 20px auto;
+  -webkit-perspective: 600px;
+          perspective: 600px;
 }
 
-#room-id-input-buttons {
-  margin: 15px;
-}
-#contract-id-input-div {
-  margin: 15px;
-}
-
-#contract-id-input-buttons {
-  margin: 15px;
-}
-h1 {
-  font-weight: 300;
-  margin: 0 0 0.8em 0;
-  padding: 0 0 0.2em 0;
-}
-
-div#entrence{
-  margin: 3em auto 0 auto;
-  padding: 1em 1.5em 1.3em 1.5em;
-  width: 25em;
-}
-div#entrence2 {
-  margin: 3em auto 0 auto;
-  padding: 1em 1.5em 1.3em 1.5em;
-  width: 25em;
-}
-div#entrence3 {
-  margin: 3em auto 0 auto;
-  padding: 1em 1.5em 1.3em 1.5em;
-  width: 25em;
-}
-
-
-p {
-  color: #eee;
-  font-weight: 300;
-  line-height: 1.6em;
-}
-
-/*////// room selection end /////////////////////*/
-
-/*////// icons CSS start ////////////////////////*/
-
-#icons {
-  bottom: 50px;
-   left: 50%;
-    transform: translateX(-50%);
+.call {
   position: absolute;
+  width: 100%;
+  box-sizing: border-box;
+  color: #ecf0f1;
+  padding: 10px;
+  border-radius: 4px;
+  transition: all 1s, background-color 600ms, opacity 600ms;
+  -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
 }
 
-circle {
-  fill: #666;
-  fill-opacity: 0.6;
+.ringing {
+  z-index: 10;
+  background-color: #80bbee;
 }
 
-svg.on circle {
-  fill-opacity: 0;
+.hold {
+  background-color: #E9B863 !important;
 }
 
-/* on icons are hidden by default */
-path.on {
+.speaking {
+  background-color: #88cfaf;
+}
+
+.wrapup {
+  background-color: #ff7980;
+}
+
+/* inner */
+.head {
+  font-size: 42px;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.details {
+  color: #ecf0f1;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px;
+}
+
+.actions {
+  width: 100%;
+  padding: 2px 16px;
+  box-sizing: border-box;
+}
+
+.action {
+  margin-left: -2px;
+  margin-right: -2px;
+  width: 50%;
+  padding: 0 8px 0 12px;
+  box-sizing: border-box;
+}
+.action > a {
+  width: 100%;
+  text-align: center;
+  display: inline-block;
+  box-sizing: border-box;
+  padding: 5px 8px;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+.action > a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* animation */
+.-fadeout {
+  -webkit-filter: blur(6px);
+          filter: blur(6px);
+  opacity: 0;
+}
+
+.-drop {
+  -webkit-filter: blur(6px);
+          filter: blur(6px);
+  opacity: 0;
+  -webkit-transform: translateY(20%) rotateX(20deg);
+          transform: translateY(20%) rotateX(20deg);
+}
+
+.-flip {
+  -webkit-transform: rotateY(180deg);
+          transform: rotateY(180deg);
+}
+
+.flipback {
+  -webkit-transform: rotateY(-180deg);
+          transform: rotateY(-180deg);
+}
+
+.-ringing {
+  -webkit-animation: _ringing 600ms infinite;
+          animation: _ringing 600ms infinite;
+  -webkit-animation-fill-mode: forward;
+          animation-fill-mode: forward;
+  -webkit-animation-direction: normal;
+          animation-direction: normal;
+  -webkit-animation-timing-function: linear;
+          animation-timing-function: linear;
+}
+
+@-webkit-keyframes _ringing {
+  0% {
+    -webkit-transform: translate(0, 0);
+            transform: translate(0, 0);
+  }
+  10% {
+    -webkit-transform: translate(6px, 0px);
+            transform: translate(6px, 0px);
+    -webkit-transform: rotateZ(2deg);
+            transform: rotateZ(2deg);
+  }
+  20% {
+    -webkit-transform: translate(-6px, 0px);
+            transform: translate(-6px, 0px);
+    -webkit-transform: rotateZ(-2deg);
+            transform: rotateZ(-2deg);
+  }
+  30% {
+    -webkit-transform: translate(3px, 0px);
+            transform: translate(3px, 0px);
+    -webkit-transform: rotateZ(1deg);
+            transform: rotateZ(1deg);
+  }
+  40% {
+    -webkit-transform: translate(-3px, 0px);
+            transform: translate(-3px, 0px);
+    -webkit-transform: rotateZ(-1deg);
+            transform: rotateZ(-1deg);
+  }
+  50% {
+    -webkit-transform: translate(2px, 0px);
+            transform: translate(2px, 0px);
+    -webkit-transform: rotateZ(1deg);
+            transform: rotateZ(1deg);
+  }
+  60% {
+    -webkit-transform: translate(0, 0);
+            transform: translate(0, 0);
+  }
+  100% {
+    -webkit-transform: translate(0, 0);
+            transform: translate(0, 0);
+  }
+}
+
+@keyframes _ringing {
+  0% {
+    -webkit-transform: translate(0, 0);
+            transform: translate(0, 0);
+  }
+  10% {
+    -webkit-transform: translate(6px, 0px);
+            transform: translate(6px, 0px);
+    -webkit-transform: rotateZ(2deg);
+            transform: rotateZ(2deg);
+  }
+  20% {
+    -webkit-transform: translate(-6px, 0px);
+            transform: translate(-6px, 0px);
+    -webkit-transform: rotateZ(-2deg);
+            transform: rotateZ(-2deg);
+  }
+  30% {
+    -webkit-transform: translate(3px, 0px);
+            transform: translate(3px, 0px);
+    -webkit-transform: rotateZ(1deg);
+            transform: rotateZ(1deg);
+  }
+  40% {
+    -webkit-transform: translate(-3px, 0px);
+            transform: translate(-3px, 0px);
+    -webkit-transform: rotateZ(-1deg);
+            transform: rotateZ(-1deg);
+  }
+  50% {
+    -webkit-transform: translate(2px, 0px);
+            transform: translate(2px, 0px);
+    -webkit-transform: rotateZ(1deg);
+            transform: rotateZ(1deg);
+  }
+  60% {
+    -webkit-transform: translate(0, 0);
+            transform: translate(0, 0);
+  }
+  100% {
+    -webkit-transform: translate(0, 0);
+            transform: translate(0, 0);
+  }
+}
+/* eq */
+.hidden {
   display: none;
 }
 
-/* off icons are displayed by default */
-path.off {
-  display: block;
+.sound {
+  font-size: 26px;
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  opacity: .2;
+  cursor: pointer;
 }
 
-/* on icons are displayed when parent svg has class 'on' */
-svg.on path.on {
-  display: block;
+.sound:hover {
+  opacity: .5;
 }
 
-/* off icons are hidden when parent svg has class 'on' */
-svg.on path.off {
-  display: none;
+.fa-ban {
+  color: tomato;
 }
 
-svg {
-  border-radius: 48px;
-  box-shadow: 2px 2px 24px #444;
-  display:inline;
-  margin: 0 0 3vh 0;
- /* transform: translateX(calc(-6vw - 96px));
- */ transition: all .1s;
-  transition-timing-function: ease-in-out;
+.head {
+  height: 46px;
 }
 
-svg:hover {
-  box-shadow: 4px 4px 48px #666;
+#eq {
+  width: 220px;
+  height: 46px;
 }
-
-#icons.active svg {
-  transform: translateX(0);
-}
-
-#mute-audio {
-  transition: 40ms;
-}
-
-#mute-audio:hover,
-#mute-audio.on {
-  background: #407cf7;
-}
-
-#mute-audio:hover circle {
-  fill: #407cf7;
-}
-#switch-camera {
-  transition: 40ms;
-}
-
-#switch-camera:hover,
-#switch-camera.on {
-  background: #407cf7;
-}
-
-#switch-camera:hover circle {
-  fill: #407cf7;
-}
-
-#mute-video {
-  transition: 120ms;
-}
-
-#mute-video:hover,
-#mute-video.on {
-  background: #407cf7;
-}
-
-#mute-video:hover circle {
-  fill: #407cf7;
-}
-
-#switch-video {
-  transition: 200ms;
-}
-
-#switch-video:hover {
-  background: #407cf7;
-}
-
-#switch-video:hover circle {
-  fill: #407cf7;
-}
-
-#me {
-  transition: 280ms;
-}
-
-#me:hover,
-#me.on {
-  background: #407cf7;
-}
-
-#me:hover circle {
-  fill: #407cf7;
-}
-
-#hangup {
-  transition: 360ms;
-}
-
-#hangup:hover {
-  background: #dd2c00;
-}
-#hangup:hover circle {
-  fill: #dd2c00;
-}
-
-/*////// icons CSS end /////////////////////////*/
