@@ -14,50 +14,46 @@ function init(router) {
 	router.get('/login', function (req, res) {
 		res.render('login');
 	});
+
 	//@BILAL this combines both mobile and webb apps
 	router.get('/loginmobile', isAuth ,function(req, res, next) {
-	    var accessToken=generateToken();
-	    console.log("accessToken="+accessToken);
-	    return res.json({ allowed: 'true', accessToken: accessToken });
-	    //res.end();
-	  //next();
+		getToken(req.query.username,function(token){
+			return res.json({ allowed: 'true', accessToken: token });
+		});
 	});
-	function isAuth(req , res , next ){
-	    username = req.query.username;
-	    password = req.query.password;
-		User.getUserByUsername(username, function (err, user) {
-		    console.log(username  + ' ------------- ' + password + ' -------- ' + user + ' -------- > err '+err )
-		    //if (err) throw err;
-		    console.log("error=="+err);
-		    if (!user || user === undefined || user === null) {
-			console.log('user null');
-			    //for json send we always need to return to prevent code from continuing execution.
-			return res.json({ allowed: 'false', reason: 'noUser' });
-			//res.end();
-		    }
-		    User.comparePassword(password, user.password, function (err, isMatch) {
-			//if (err) throw err;
-			if (isMatch) {
-			console.log('user is match');
-			    return next();
-			   //res.send('true');
-			} else {
-			console.log('user notMatch');
-			return res.json({ allowed: 'false', reason: 'notMatch' });
-			//res.end();
 
-			}
-		    });
+	function isAuth(req , res , next ){
+    username = req.query.username;
+    password = req.query.password;
+		User.getUserByUsername(username, function (err, user) {
+	    //if (err) throw err;
+	    console.log("error=="+err);
+	    if (!user || user === undefined || user === null) {
+			console.log('user null');
+	    //for json send we always need to return to prevent code from continuing execution.
+	 		return res.json({ allowed: 'false', reason: 'noUser' });
+	 		//res.end();
+    	}
+			User.comparePassword(password, user.password, function (err, isMatch) {
+				//if (err) throw err;
+				if (isMatch) {
+				console.log('user is match');
+				    return next();
+				   //res.send('true');
+				} else {
+				console.log('user notMatch');
+				return res.json({ allowed: 'false', reason: 'notMatch' });
+				//res.end();
+
+				}
+			});
 		});
 	}
+
 	//@BILAL END
 	// Login
 	router.get('/call', function (req, res) {
-//		if(req.isAuthenticated()){
 			res.render('call')
-//		} else {
-//			res.render('index')
-//		}
 	});
 
 
@@ -100,22 +96,27 @@ function init(router) {
 						});
 					}
 					else {
-						var newUser = new User({
-							name: name,
-							email: email,
-							username: username,
-							password: password
+						generateToken(function(accestoken,err){
+							var newUser = new User({
+								name: name,
+								email: email,
+								username: username,
+								password: password,
+								token : accestoken
+							});
+							User.createUser(newUser, function (err, user) {
+								if (err) throw err;
+								console.log('----------------------------------->'+user);
+							});
+		         	req.flash('success_msg', 'You are registered and can now login');
+							res.redirect('/login');
 						});
-						User.createUser(newUser, function (err, user) {
-							if (err) throw err;
-						});
-	         	req.flash('success_msg', 'You are registered and can now login');
-						res.redirect('/login');
 					}
 				});
 			});
 		}
 	});
+
 
 	passport.use(new LocalStrategy(
 		function (username, password, done) {
@@ -136,9 +137,11 @@ function init(router) {
 			});
 		}));
 
+
 	passport.serializeUser(function (user, done) {
 		done(null, user.id);
 	});
+
 
 	passport.deserializeUser(function (id, done) {
 		User.getUserById(id, function (err, user) {
@@ -162,6 +165,26 @@ function init(router) {
 
 	module.exports = router;
 
+
+	function generateToken(callback){
+	  require('crypto').randomBytes(48, function(err, buffer) {
+			if(err) { console.error("error generating token -------------> "+err); }
+	    var token = buffer.toString('hex');
+			callback(token);
+	  });
+	}
+
+
+	function getToken(username,callback){
+		User.getUserByUsername(username, function (err, user) {
+			if(err) { console.error(err); return; }
+			if( user && callback ) callback(user.token);
+		});
+	}
+
 }
 
 exports.init = init
+
+
+// The end !!

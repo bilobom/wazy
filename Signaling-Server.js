@@ -6,6 +6,37 @@
 // stores all sockets, user-ids, extra-data and connected sockets
 // you can check presence as following:
 // var isRoomExist = listOfRTCUsers['room-id'] != null;
+//
+
+var User = require('./models/usersModel');
+function checkingUserAccess(socketUserName , SocketAccessToken , callback ) {
+  callback = callback || function(){};
+  User.getUserByUsername(socketUserName, function (err, user) {
+
+    if(err) { console.log("error=="+err);  return;}
+
+    var reason = '';
+    var allowed = true;
+
+    if ( !user || user === undefined || user === null) {
+      reason = socketUserName + ' Non Enregistred ';
+      callback(false , reason);
+      return;
+    }
+
+    console.log('---------->  '+user.username+' -----------> token = '+SocketAccessToken +' ---- '+user.token);
+
+    if( !user.token || user.token == null || user.token == undefined || user.token !== SocketAccessToken ){
+      reason = 'Access Token Non Valide';
+      callback(false , reason);
+      return;
+    }
+
+    callback(true , reason);
+  });
+
+}
+
 
 var listOfRTCUsers = {}; //in RTC Session
 var listOfUsers = {}; // simple session
@@ -64,14 +95,21 @@ module.exports = exports = function(app, socketCallback) {
     function onConnection(socket) {
 
         var params = socket.handshake.query;
-        if(params.soketType == 'socket'){
-          // From Users.js (Client)
-          simpleSocket(socket);
-        }else{
-          // params.soketType ==  RTCSocket
-          // From RTCMultiConnection.js (Client)
-          onRTCconnectoin(socket);
-        }
+
+        checkingUserAccess(params.userid , params.token , function(allowed , reason ){
+          if(!allowed){
+            socket.emit('accessRejected',reason);
+            return;
+          }
+          if(params.soketType == 'socket'){
+            // From Users.js (Client)
+            simpleSocket(socket);
+          }else{
+            // params.soketType ==  RTCSocket
+            // From RTCMultiConnection.js (Client)
+            onRTCconnectoin(socket);
+          }
+        });
     }
 
 
@@ -135,9 +173,17 @@ module.exports = exports = function(app, socketCallback) {
         }
         io.sockets.emit('UsersOnLine',onLineUsers,listOfUsers[newSocket.userid].sockets.length);
 
-
       });
 
+
+      newSocket.on('cancelCall',function(recever){
+        if(!!listOfUsers[recever] && !!listOfUsers[recever].sockets && listOfUsers[recever].sockets.length > 0 ){
+          recever = listOfUsers[recever];
+          recever.sockets.forEach(function(ReceverSocket) {
+            if(ReceverSocket) ReceverSocket.emit('cancelCall',recever);
+          });
+        }
+      });
 
       //@R.GRID
       function call(message){

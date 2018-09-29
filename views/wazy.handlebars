@@ -1,115 +1,228 @@
-<!DOCTYPE html>
-
+<!doctype html>
 <html>
 <head>
-  <meta name="format-detection" content="telephone=no">
-  <meta name="msapplication-tap-highlight" content="no">
-  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
-  <title>Wazy</title>
+  <meta charset="utf-8">
 
-  <link rel="stylesheet" href="/stylesheets/font-awesome.min.css">
-	<link rel="stylesheet" href="/fonts/material-icons.css">
-
-	<link rel="stylesheet" href="/stylesheets/bootstrap.css" />
-	<link rel="stylesheet" href="/stylesheets/bootstrap-theme.min.css" />
-	<link rel="stylesheet" href="/stylesheets/getHTMLMediaElement.css" />
-	<link rel="stylesheet" href="/stylesheets/symple.player.css" />
-	<link rel="stylesheet" href="/stylesheets/app.css" />
-	<link rel="stylesheet" href="/stylesheets/style.css" />
-	<link rel="stylesheet" href="/stylesheets/wazy.css" />
-
-
-	<script type="text/javascript" src="/javascripts/jquery-3.3.1.min.js"></script>
-	<script type="text/javascript" src="/javascripts/bootstrap.js"></script>
-  <link rel="stylesheet" href="stylesheets/main.css" />
+  <link rel="stylesheet" href="lib/onsen/css/onsenui.css">
+  <link rel="stylesheet" href="lib/onsen/css/onsen-css-components-blue-basic-theme.css">
+  <link rel="stylesheet" href="stylesheets/sliding_menu.css">
+  <link rel="stylesheet" href="stylesheets/main.css">
 
   <script type="text/javascript" src="cordova.js"></script>
+  <script type="text/javascript" src="lib/onsen/js/onsenui.js"></script>
   <script type="text/javascript" src="javascripts/jquery-3.3.1.min.js"></script>
   <script type="text/javascript" src="javascripts/DetectRTC.js"></script>
-  <script type="text/javascript" src="javascripts/popper.js"></script>
-  <script type="text/javascript" src="javascripts/index.js"></script>
   <script type="text/javascript" src="javascripts/socket.io.js"></script>
   <script type="text/javascript" src="javascripts/RTCMultiConnection.js"></script>
-  <script type="text/javascript" src="javascripts/FileBufferReader.js"></script>
   <script type="text/javascript" src="javascripts/getHTMLMediaElement.js"></script>
   <script type="text/javascript" src="javascripts/getStats.js"></script>
   <script type="text/javascript" src="javascripts/adapter.js"></script>
-  <script type="text/javascript" src="javascripts/MediaStreamRecorder.js"></script>
-
+  <script type="text/javascript" src="javascripts/helpersUI.js"></script>
+  <script type="text/javascript" src="javascripts/Users.js"></script>
+  <script type="text/javascript" src="javascripts/helpersBackend.js"></script>
 </head>
 <body>
 
   {{#if user}}
     <input type="hidden" id="userID" value={{user.username}} >
+    <input type="hidden" id="token"  value={{user.token}} >
   {{else}}
     <input type="hidden" id="userID" value="DefaultUserID" >
+    <input type="hidden" id="token"  value="DefaultAccessToken" >
   {{/if}}
 
-  <div id="entrence3" class="hidden" >
-    <h1>Wazy Visual Assistance</h1>
-    <p id="instructions">Who do you want to call</p>
-    <div>
-      <div id="room-id-input-div">
-        <input type="text" id="callee-id" autofocus/>
+
+	<ons-splitter>
+    <ons-splitter-side id="menu" side="left" width="300px" collapse >
+      <ons-page modifier="menu-page">
+         <ons-toolbar modifier="transparent" ></ons-toolbar>
+
+         <ons-list class="menu-list">
+           <ons-list-item class="menu-item" onclick="fn.load('main.html')" tappable>
+             <ons-icon icon="fa-plus"></ons-icon>
+             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO
+           </ons-list-item>
+           <ons-list-item class="menu-item" onclick="fn.load('main.html')" tappable>
+            <ons-icon size="20px" icon="fa-gear"></ons-icon>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Settings
+           </ons-list-item>
+           <ons-list-item class="menu-item" onclick="fn.load('main.html')" tappable>
+            <ons-icon icon="fa-camera"></ons-icon>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Video Hub
+           </ons-list-item>
+         </ons-list>
+         <br>
+
+         <ons-list id="onlineUsers" class="menu-list"></ons-list>
+         <form id="logout" action="/logout">
+           <ons-button style="position:absolute;bottom:4px;"onclick="logout()" modifier="large">Logout</ons-button>
+         </form>
+     </ons-page>
+    </ons-splitter-side>
+  </ons-splitter-side>
+
+
+
+
+
+
+
+<ons-splitter-content id="content" page="loading.html"></ons-splitter-content>
+
+
+<ons-template id="main.html">
+  <ons-page >
+    <ons-modal direction="up" id="modalRingtone">
+      <div class="container">
+        <div class="call ringing -ringing">
+          <div class="head"><i class="fa fa-bell"></i></div>
+          <div class="details" id="modalMessage"></div>
+          <ul class="actions">
+            <li class="action"> <a id="accept">Accept</a></li>
+            <li class="action"> <a id="refuse">Refuse</a></li>
+          </ul>
+        </div>
       </div>
-      <div id="room-id-input-buttons">
-        <button id="open-room" onclick="call()">Call</button>
+    </ons-modal>
+    <ons-modal direction="up" id="modalRinging">
+      <div class="container">
+        <div class="call ringing -ringing">
+          <div class="head"><i class="fa fa-phone"></i></div>
+          <div class="details" id="messageRing"></div>
+          <ul class="actions">
+            <li class="action"> <a id="cancelCall" onclick="cancelCall()">Cancel</a></li>
+          </ul>
+        </div>
+      </div>
+    </ons-modal>
+    <ons-toolbar>
+      <div class="left">
+        <ons-toolbar-button onclick="fn.open()">
+          <ons-icon size="40px"  icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+      <div class="center">Video Hub</div>
+      <div class="right">
+        <ons-row>
+          <ons-col class="left">
+            <ons-icon  size="35px" style="color:rgba(38,100,171,0.9);" icon="fa-user"></ons-icon>
+          </ons-col class="right">
+          <ons-col style="text-align: center;">
+            <div id="name"  ></div>
+          </ons-col>
+        </ons-row>
+      </div>
+    </ons-toolbar>
+
+    <div id="videos">
+     <ons-gesture-detector>
+        <div id="mini-video" ></div>
+     </ons-gesture-detector>
+     <div id="remote-video"></div>
+     <div id="local-video" class="hidden" ondoubleclick="localToMini()"></div>
+   </div>
+
+   <ons-fab onclick="hungup()" style="background-color:rgba(255,0,0,0.5);bottom:90px;top:auto;margin-left: -28px;left: 50%;right: auto;position: fixed;" >
+     <ons-icon icon="md-phone-end"></ons-icon>
+   </ons-fab>
+   <ons-fab  id="MuteVideo" onclick="toggleVideo()" style="background-color: rgba(38,100,171,0.9);" position="bottom center">
+     <ons-icon icon="md-videocam"></ons-icon>
+   </ons-fab>
+
+   <ons-fab id="MuteAudio" onclick="toggleAudio()" style="background-color: rgba(38,100,171,0.9);left: 80px;" position="bottom left">
+     <ons-icon icon="md-mic"></ons-icon>
+   </ons-fab>
+
+   <ons-fab id="changeCamera" onclick="changeCamera()" style="background-color: rgba(38,100,171,0.9);right: 80px;"position="bottom right" >
+    <ons-icon  icon="md-camera-party-mode"></ons-icon>
+  </ons-fab>
+
+  </ons-page>
+</ons-template>
+
+
+
+<ons-template id="login.html">
+  <ons-page on-device-backbutton="closeApp()">
+    <ons-toolbar>
+      <div class="center">Log In</div>
+      <div class="right" ><ons-toolbar-button onclick="closeApp()">Close</ons-toolbar-button></div>
+    </ons-toolbar>
+    <ons-popover direction="up" id="popoverLogin">
+      <div style=" text-align: center;">
+        <p id="messageError">
+          <!-- here comes Flashed messages-->
+        </p>
+        <p>
+          <ons-button onclick="UnFlashMessage()">Ok</ons-button>
+        </p>
+      </div>
+    </ons-popover>
+    <div class="login-form">
+      <img src="images/wazy2.png" alt="wasy" title="logo" width="100%" height="" />
+      <br><br>
+      <input id="username" type="email" class="text-input--underbar" placeholder="username" >
+      <input id="password" type="password" class="text-input--underbar" placeholder="Password" >
+      <br><br>
+      <ons-button modifier="large" id="loginButton" class="login-button" onclick="login()">Log In</ons-button>
+      <br><br>
+    </div>
+  </ons-page>
+</ons-template>
+
+
+
+<ons-template id="loading.html">
+  <ons-page>
+    <div style="width: 100%; text-align: center; padding: 40% 0;">
+      <svg class="progress-circular">
+        <circle class="progress-circular__primary" cx="50%" cy="50%" r="40%" fill="none" stroke-width="10%" stroke-miterlimit="10"/>
+      </svg>
+    </div>
+  </ons-page>
+</ons-template>
+
+
+<ons-template id="chat.html">
+  <link rel="stylesheet" type="text/css" href="stylesheets/chat.css">
+  <div class="page">
+    <div class="marvel-device nexus5">
+        <div class="screen-container">
+          <div class="chat">
+            <div class="chat-container">
+              <div class="user-bar">
+              </div>
+              <div class="conversation">
+                <div class="conversation-container">
+                  <div class="message sent">
+                    Please Be aware that You messages will not be saved.
+                    <span class="metadata">
+                        <span class="time"></span><span class="tick"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" id="msg-dblcheck-ack" x="2063" y="2076"><path d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.88a.32.32 0 0 1-.484.032l-.358-.325a.32.32 0 0 0-.484.032l-.378.48a.418.418 0 0 0 .036.54l1.32 1.267a.32.32 0 0 0 .484-.034l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.88a.32.32 0 0 1-.484.032L1.892 7.77a.366.366 0 0 0-.516.005l-.423.433a.364.364 0 0 0 .006.514l3.255 3.185a.32.32 0 0 0 .484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z" fill="#4fc3f7"/></svg></span>
+                    </span>
+                  </div>
+                <form class="conversation-compose">
+                  <div class="emoji">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" id="smiley" x="3147" y="3209"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.153 11.603c.795 0 1.44-.88 1.44-1.962s-.645-1.96-1.44-1.96c-.795 0-1.44.88-1.44 1.96s.645 1.965 1.44 1.965zM5.95 12.965c-.027-.307-.132 5.218 6.062 5.55 6.066-.25 6.066-5.55 6.066-5.55-6.078 1.416-12.13 0-12.13 0zm11.362 1.108s-.67 1.96-5.05 1.96c-3.506 0-5.39-1.165-5.608-1.96 0 0 5.912 1.055 10.658 0zM11.804 1.01C5.61 1.01.978 6.034.978 12.23s4.826 10.76 11.02 10.76S23.02 18.424 23.02 12.23c0-6.197-5.02-11.22-11.216-11.22zM12 21.355c-5.273 0-9.38-3.886-9.38-9.16 0-5.272 3.94-9.547 9.214-9.547a9.548 9.548 0 0 1 9.548 9.548c0 5.272-4.11 9.16-9.382 9.16zm3.108-9.75c.795 0 1.44-.88 1.44-1.963s-.645-1.96-1.44-1.96c-.795 0-1.44.878-1.44 1.96s.645 1.963 1.44 1.963z" fill="#7d8489"/></svg>
+                  </div>
+                  <input class="input-msg" name="input" placeholder="Type a message" autocomplete="off" autofocus></input>
+                  <div class="photo">
+                    <i class="zmdi zmdi-camera"></i>
+                  </div>
+                  <button  class="send">
+                      <div class="circle">
+                        <i class="zmdi zmdi-mail-send"></i>
+                      </div>
+                    </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <div id="recent-rooms">
-      <p>Online Users: </p>
-      <ul id="recent-rooms-list">
-        <li>
-        <a href="#">b.boumaad</a></li>
-        <li>
-        <a href="#">o.boumaad</a></li>
-        <li>
-        <a href="#">i.eldjazairy</a></li>
-      </ul>
-    </div>
   </div>
-
-  <div id="videos" >
-    <div id="mini-video"></div>
-    <div id="remote-video"></div>
-    <div id="local-video" class="hidden"></div>
-  </div>
-
-  <div id="icons" >
-
-    <svg id="mute-audio" onclick=" toggleAudio()"   xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewbox="-10 -10 68 68">
-      <title>title</title>
-      <circle cx="24" cy="24" r="34">
-        <title>Mute audio</title>
-      </circle>
-      <path class="on"  transform="scale(0.6), translate(17,18)" d="M38 22h-3.4c0 1.49-.31 2.87-.87 4.1l2.46 2.46C37.33 26.61 38 24.38 38 22zm-8.03.33c0-.11.03-.22.03-.33V10c0-3.32-2.69-6-6-6s-6 2.68-6 6v.37l11.97 11.96zM8.55 6L6 8.55l12.02 12.02v1.44c0 3.31 2.67 6 5.98 6 .45 0 .88-.06 1.3-.15l3.32 3.32c-1.43.66-3 1.03-4.62 1.03-5.52 0-10.6-4.2-10.6-10.2H10c0 6.83 5.44 12.47 12 13.44V42h4v-6.56c1.81-.27 3.53-.9 5.08-1.81L39.45 42 42 39.46 8.55 6z" fill="white"/>
-      <path class="off"  transform="scale(0.6), translate(17,18)"  d="M24 28c3.31 0 5.98-2.69 5.98-6L30 10c0-3.32-2.68-6-6-6-3.31 0-6 2.68-6 6v12c0 3.31 2.69 6 6 6zm10.6-6c0 6-5.07 10.2-10.6 10.2-5.52 0-10.6-4.2-10.6-10.2H10c0 6.83 5.44 12.47 12 13.44V42h4v-6.56c6.56-.97 12-6.61 12-13.44h-3.4z"  fill="white"/>
-     </svg>
-
-    <svg id="mute-video" onclick="toggleVideo()" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewbox="-10 -10 68 68">
-      <circle cx="24" cy="24" r="34">
-        <title>Mute video</title>
-      </circle>
-      <path class="on"  transform="scale(0.6), translate(17,16)" d="M40 8H15.64l8 8H28v4.36l1.13 1.13L36 16v12.36l7.97 7.97L44 36V12c0-2.21-1.79-4-4-4zM4.55 2L2 4.55l4.01 4.01C4.81 9.24 4 10.52 4 12v24c0 2.21 1.79 4 4 4h29.45l4 4L44 41.46 4.55 2zM12 16h1.45L28 30.55V32H12V16z" fill="white"/>
-      <path class="off" transform="scale(0.6), translate(17,16)" d="M40 8H8c-2.21 0-4 1.79-4 4v24c0 2.21 1.79 4 4 4h32c2.21 0 4-1.79 4-4V12c0-2.21-1.79-4-4-4zm-4 24l-8-6.4V32H12V16h16v6.4l8-6.4v16z" fill="white"/>
-     </svg>
-
-    <svg id="me" onclick="MiniToLocal()" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewbox="-10 -10 68 68">
-      <circle cx="24" cy="24" r="34">
-        <title>Me</title>
-      </circle>
-      <path class="on" transform="scale(0.8), translate(7,6)" d="M10 32h6v6h4V28H10v4zm6-16h-6v4h10V10h-4v6zm12 22h4v-6h6v-4H28v10zm4-22v-6h-4v10h10v-4h-6z" fill="white"/>
-      <path class="off" transform="scale(0.8), translate(7,6)"  d="M14 28h-4v10h10v-4h-6v-6zm-4-8h4v-6h6v-4H10v10zm24 14h-6v4h10V28h-4v6zm-6-24v4h6v6h4V10H28z" fill="white"/>
-     </svg>
-
-    <svg id="hangup" onclick="Hungup()" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewbox="-10 -10 68 68">
-      <circle cx="24" cy="24" r="34">
-        <title>Hangup</title>
-      </circle>
-      <path transform="scale(0.7), translate(11,10)" d="M24 18c-3.21 0-6.3.5-9.2 1.44v6.21c0 .79-.46 1.47-1.12 1.8-1.95.98-3.74 2.23-5.33 3.7-.36.35-.85.57-1.4.57-.55 0-1.05-.22-1.41-.59L.59 26.18c-.37-.37-.59-.87-.59-1.42 0-.55.22-1.05.59-1.42C6.68 17.55 14.93 14 24 14s17.32 3.55 23.41 9.34c.37.36.59.87.59 1.42 0 .55-.22 1.05-.59 1.41l-4.95 4.95c-.36.36-.86.59-1.41.59-.54 0-1.04-.22-1.4-.57-1.59-1.47-3.38-2.72-5.33-3.7-.66-.33-1.12-1.01-1.12-1.8v-6.21C30.3 18.5 27.21 18 24 18z" fill="white"/>
-     </svg>
-
-  </div>
+    <script type="text/javascript" src="javascripts/moment.min.js"></script>
+</ons-template>
 
 </body>
 </html>

@@ -16,9 +16,8 @@ var horzScaling = false;
 
 var index = require('../routes/index');
 var users = require('../routes/user');
-var mapi = require('../routes/mapi');
 
-index.init(app); users.init(app);mapi.init(app);
+index.init(app); users.init(app);
 
 
 /**
@@ -37,7 +36,7 @@ var sslOption={
 }
 
 var server = http.createServer(app);
-//var server = https.createServer(sslOption,app);
+var server = https.createServer(sslOption,app);
 
 /**
  *  Run the server
