@@ -36,7 +36,7 @@ var sslOption={
 }
 
 var server = http.createServer(app);
-var server = https.createServer(sslOption,app);
+//var server = https.createServer(sslOption,app);
 
 /**
  *  Run the server
