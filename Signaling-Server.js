@@ -6,7 +6,7 @@
 // stores all sockets, user-ids, extra-data and connected sockets
 // you can check presence as following:
 // var isRoomExist = listOfRTCUsers['room-id'] != null;
-
+//
 
 var User = require('./models/usersModel');
 function checkingUserAccess(socketUserName , SocketAccessToken , callback ) {
