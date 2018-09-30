@@ -9,6 +9,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
         parameters += '?soketType=' + 'RTCSocket';
         parameters += '&token='  + myAccessToken;
         parameters += '&userid=' + connection.userid;
+         parameters += '&username=' + userid;
         parameters += '&sessionid=' + connection.sessionid;
         parameters += '&msgEvent=' + connection.socketMessageEvent;
         parameters += '&socketCustomEvent=' + connection.socketCustomEvent;
