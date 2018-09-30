@@ -91,12 +91,14 @@ module.exports = exports = function(app, socketCallback) {
     return;
     }
     */
-
+    //@BILAL the RTCMultiCnt have a problem with userid, where userid=roomid ,
+    // for this i need to change userid to username for both RTCSocket and UserSocket
+    // parameters += '&username=' + userid;
     function onConnection(socket) {
 
         var params = socket.handshake.query;
-
-        checkingUserAccess(params.userid , params.token , function(allowed , reason ){
+        // @BIlAL here instead of userid we change it to username OK thankYou !
+        checkingUserAccess(params.username , params.token , function(allowed , reason ){
           if(!allowed){
             socket.emit('accessRejected',reason);
             return;
