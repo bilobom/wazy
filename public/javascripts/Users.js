@@ -57,6 +57,7 @@ function initSocketUser() {
 
   parameters += '?soketType=' + 'socket';
   parameters += '&userid=' + userid;
+  parameters += '&username=' + userid;
   parameters += '&token='  + myAccessToken;
 
   try {
