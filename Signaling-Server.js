@@ -136,16 +136,22 @@ module.exports = exports = function(app, socketCallback) {
       newSocket.on('call',function(caller , recever , video){
         if(!!listOfUsers[recever] && !!listOfUsers[recever].sockets && listOfUsers[recever].sockets.length > 0 ){
           recever = listOfUsers[recever];
-          recever.sockets.forEach(function(ReceverSocket) {
-            if(ReceverSocket) ReceverSocket.emit('inCammingCall',caller,video);
-          });
+          if(recever.sockets){
+               recever.sockets.forEach(function(ReceverSocket) {
+                  if(ReceverSocket) ReceverSocket.emit('inCammingCall',caller,video);
+                });
+             }
+          
         }
         else {
           if(!!listOfUsers[caller] && !!listOfUsers[caller].sockets && listOfUsers[caller].sockets.length > 0 ){
             caller = listOfUsers[caller];
-            caller.sokets.forEach(function(callerSocket){
-                callerSocket.emit('userOffLine',recever);
-            });
+            if(caller.sokets){
+               caller.sokets.forEach(function(callerSocket){
+                    callerSocket.emit('userOffLine',recever);
+                });
+               }
+            
           }
           console.log('No '+recever+' Socket to Call him !!!');
         }
@@ -156,9 +162,14 @@ module.exports = exports = function(app, socketCallback) {
       newSocket.on('setResponse',function(caller,recever,accepted,roomid){
         if(!!listOfUsers[caller] && listOfUsers[caller].sockets){
           caller = listOfUsers[caller];
-          caller.sockets.forEach(function(callerSocket) {
-            if(callerSocket) callerSocket.emit('getResponse',recever,accepted,roomid);
-          });
+          // to prevent this error
+          //peError: Cannot read property 'forEach' of undefined
+          //a Socket.<anonymous> (/app/Signaling-Server.js:146:27)
+          if(caller.sockets){
+              caller.sockets.forEach(function(callerSocket) {
+                if(callerSocket) callerSocket.emit('getResponse',recever,accepted,roomid);
+              });
+          }
         }
       });
 
@@ -181,9 +192,11 @@ module.exports = exports = function(app, socketCallback) {
       newSocket.on('cancelCall',function(recever){
         if(!!listOfUsers[recever] && !!listOfUsers[recever].sockets && listOfUsers[recever].sockets.length > 0 ){
           recever = listOfUsers[recever];
-          recever.sockets.forEach(function(ReceverSocket) {
-            if(ReceverSocket) ReceverSocket.emit('cancelCall',recever);
-          });
+          if(recever.sockets){
+            recever.sockets.forEach(function(ReceverSocket) {
+              if(ReceverSocket) ReceverSocket.emit('cancelCall',recever);
+            });
+          }
         }
       });
 
@@ -383,13 +396,15 @@ module.exports = exports = function(app, socketCallback) {
         socket.on('close-entire-session', function(callback) {
             try {
                 var connectedWith = listOfRTCUsers[socket.userid].connectedWith;
-                Object.keys(connectedWith).forEach(function(key) {
-                    if (connectedWith[key] && connectedWith[key].emit) {
-                        try {
-                            connectedWith[key].emit('closed-entire-session', socket.userid, listOfRTCUsers[socket.userid].extra);
-                        } catch (e) {}
-                    }
-                });
+                if(Object.keys(connectedWith)){
+                   Object.keys(connectedWith).forEach(function(key) {
+                        if (connectedWith[key] && connectedWith[key].emit) {
+                            try {
+                                connectedWith[key].emit('closed-entire-session', socket.userid, listOfRTCUsers[socket.userid].extra);
+                            } catch (e) {}
+                        }
+                    });
+                   }
 
                 delete shiftedModerationControls[socket.userid];
                 callback();
@@ -463,24 +478,29 @@ module.exports = exports = function(app, socketCallback) {
             }
 
             var inviteTheseUsers = [roomInitiator.socket];
-            Object.keys(usersInARoom).forEach(function(key) {
-                inviteTheseUsers.push(usersInARoom[key]);
-            });
+            if(Object.keys(usersInARoom)){
+                Object.keys(usersInARoom).forEach(function(key) {
+                    inviteTheseUsers.push(usersInARoom[key]);
+                });
+               }
+            
 
             var keepUnique = [];
-            inviteTheseUsers.forEach(function(userSocket) {
-                if (userSocket.userid == socket.userid) return;
-                if (keepUnique.indexOf(userSocket.userid) != -1) {
-                    return;
-                }
-                keepUnique.push(userSocket.userid);
+            if(inviteTheseUsers){
+              inviteTheseUsers.forEach(function(userSocket) {
+                  if (userSocket.userid == socket.userid) return;
+                  if (keepUnique.indexOf(userSocket.userid) != -1) {
+                      return;
+                  }
+                  keepUnique.push(userSocket.userid);
 
-                if (params.oneToMany && userSocket.userid !== roomInitiator.socket.userid) return;
+                  if (params.oneToMany && userSocket.userid !== roomInitiator.socket.userid) return;
 
-                message.remoteUserId = userSocket.userid;
-                //@R.GRID
-                userSocket.emit(socketMessageEvent, message);
-            });
+                  message.remoteUserId = userSocket.userid;
+                  //@R.GRID
+                  userSocket.emit(socketMessageEvent, message);
+              });
+            }
         }
 
 
