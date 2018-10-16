@@ -116,6 +116,9 @@ function init(router) {
 			});
 		}
 	});
+	router.post('/registermobile', function (req, res) {
+		console.log("post reeq*******************************************"req);
+	});
 
 
 	passport.use(new LocalStrategy(
