@@ -18,6 +18,15 @@ var UserSchema = mongoose.Schema({
 	},
 	token : {
 		type: String
+	},
+	SCN: {
+		type: String
+	},
+	campany : {
+		type: String
+	},
+	lastName: : {
+		type: String
 	}
 });
 
@@ -36,6 +45,7 @@ module.exports.getUserByUsername = function(username, callback){
 	var query = {username: username};
 	User.findOne(query, callback);
 }
+
 
 module.exports.getUserById = function(id, callback){
 	User.findById(id, callback);
