@@ -69,7 +69,6 @@ function init(router) {
 		var company = req.body.company;
 		var lastName = req.body.lastName;
 		console.log("name"+name);
-		console.log("req.body"+req.body);
 		
 		// Validation
 		req.checkBody('name', 'Name is required').notEmpty();
