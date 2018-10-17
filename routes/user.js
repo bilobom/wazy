@@ -95,8 +95,8 @@ function init(router) {
 					"$regex": "^" + email + "\\b", "$options": "i"
 			}}, function (err, mail) {
 					if (user ) {
-						return res.json({ success: 'false', reason:'UserAlreadyTaken'});
-					}else if(mail) return res.json({ success: 'false', reason:'EmailAlreadyTaken'});
+						return res.json({ success: 'false', reason:[{msg:'UserAlreadyTaken'}]});
+					}else if(mail) return res.json({ success: 'false', reason:[{msg:'EmailAlreadyTaken'}]});
 					else {
 						generateToken(function(accestoken,err){
 							var newUser = new User({
