@@ -117,7 +117,7 @@ function init(router) {
 		}
 	});
 	router.post('/registermobile', function (req, res) {
-		console.log("post reeq*******************************************"+JSON.stringify(req));
+		console.log("post reeq*******************************************"+require('circular-json').stringify(req));
 	});
 
 
