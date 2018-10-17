@@ -25,7 +25,7 @@ var UserSchema = mongoose.Schema({
 	campany : {
 		type: String
 	},
-	lastName: : {
+	lastName: {
 		type: String
 	}
 });
