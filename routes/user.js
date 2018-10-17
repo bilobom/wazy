@@ -67,7 +67,9 @@ function init(router) {
 		var SCN = req.body.SCN;
 		var company = req.body.company;
 		var lastName = req.body.lastName;
-
+		console.log("name"+name);
+		console.log("req.body"+req.body);
+		
 		// Validation
 		req.checkBody('name', 'Name is required').notEmpty();
 		req.checkBody('campany', 'Campany Name is required').notEmpty();
