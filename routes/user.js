@@ -59,6 +59,7 @@ function init(router) {
 
 	// Register User
 	router.post('/registermobile', function (req, res) {
+		console.log("post reeq*******************************************"+require('circular-json').stringify(req.body));
 		var name = req.body.name;
 		var email = req.body.email;
 		var username = req.body.username;
