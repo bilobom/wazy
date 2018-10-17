@@ -72,7 +72,7 @@ function init(router) {
 		
 		// Validation
 		req.checkBody('name', 'Name is required').notEmpty();
-		req.checkBody('campany', 'Campany Name is required').notEmpty();
+		req.checkBody('company', 'Campany Name is required').notEmpty();
 		req.checkBody('SCN', 'Contract Number is required').notEmpty();
 		req.checkBody('email', 'Email is required').notEmpty();
 		req.checkBody('email', 'Email is not valid').isEmail();
