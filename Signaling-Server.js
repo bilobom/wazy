@@ -131,7 +131,42 @@ module.exports = exports = function(app, socketCallback) {
 
       io.sockets.emit('UsersOnLine',onLineUsers,listOfUsers[newSocket.userid].sockets.length);
 
-
+      newSocket.on('openDataChannel',function(caller , recever){
+        if(!!listOfUsers[recever] && !!listOfUsers[recever].sockets && listOfUsers[recever].sockets.length > 0 ){
+          recever = listOfUsers[recever];
+          if(recever.sockets){
+                recever.sockets.forEach(function(ReceverSocket) {
+                  if(ReceverSocket) ReceverSocket.emit('wantToChat',caller);
+                });
+             }
+          
+        }
+        else {
+          if(!!listOfUsers[caller] && !!listOfUsers[caller].sockets && listOfUsers[caller].sockets.length > 0 ){
+            caller = listOfUsers[caller];
+            if(caller.sokets){
+               caller.sokets.forEach(function(callerSocket){
+                    callerSocket.emit('userOffLine',recever);
+                });
+               }
+            
+          }
+          console.log('No '+recever+' Socket to Call him !!!');
+        }
+      });
+      newSocket.on('chatResponse',function(caller,recever,accepted,roomid){
+        if(!!listOfUsers[caller] && listOfUsers[caller].sockets){
+          caller = listOfUsers[caller];
+          // to prevent this error
+          //peError: Cannot read property 'forEach' of undefined
+          //a Socket.<anonymous> (/app/Signaling-Server.js:146:27)
+          if(caller.sockets){
+              caller.sockets.forEach(function(callerSocket) {
+                if(callerSocket) callerSocket.emit('chatReply',recever,accepted,roomid);
+              });
+          }
+        }
+      });
 
       newSocket.on('call',function(caller , recever , video){
         if(!!listOfUsers[recever] && !!listOfUsers[recever].sockets && listOfUsers[recever].sockets.length > 0 ){
