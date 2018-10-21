@@ -142,15 +142,15 @@ module.exports = exports = function(app, socketCallback) {
           
         }
         else {
-          if(!!listOfUsers[caller] && !!listOfUsers[caller].sockets && listOfUsers[caller].sockets.length > 0 ){
-            caller = listOfUsers[caller];
+          //if(!!listOfUsers[caller] && !!listOfUsers[caller].sockets && listOfUsers[caller].sockets.length > 0 ){
+            //caller = listOfUsers[caller];
             if(caller.sokets){
                caller.sokets.forEach(function(callerSocket){
-                    callerSocket.emit('userOffLine',recever);
+                    if(callerSocket) callerSocket.emit('userOffLine',recever);
                 });
                }
             
-          }
+          //}
           console.log('No '+recever+' Socket to Call him !!!');
         }
       });
