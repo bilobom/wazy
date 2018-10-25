@@ -9,22 +9,21 @@
 //
 
 var User = require('./models/usersModel');
-function checkingUserAccess(socketUserName , SocketAccessToken , callback ) {
+var Company = require('./models/companyModel');
+function checkingUserAccess(username , accessToken , callback ) {
+  console.log("SS : checkingUserAccess");
   callback = callback || function(){};
-  User.getUserByUsername(socketUserName, function (err, user) {
-
+  User.getUserByUsername(username, function (err, user) {
     if(err) { console.log("error=="+err);  return;}
 
     var reason = '';
     var allowed = true;
 
     if ( !user || user === undefined || user === null) {
-      reason = socketUserName + ' Non Enregistred ';
+      reason = username + ' Non Enregistred ';
       callback(false , reason);
       return;
     }
-
-    console.log('---------->  '+user.username+' -----------> token = '+SocketAccessToken +' ---- '+user.token);
 
     if( !user.token || user.token == null || user.token == undefined || user.token !== SocketAccessToken ){
       reason = 'Access Token Non Valide';
@@ -32,16 +31,66 @@ function checkingUserAccess(socketUserName , SocketAccessToken , callback ) {
       return;
     }
 
+    if( !user.SCN || user.SCN == null || user.SCN == undefined ){
+      reason = 'No Service Contract Number ';
+      callback(false , reason);
+      return;
+    }
+
+    Company.getCompanyBySCN(user.SCN,function(err , company){
+      if(err) { console.log("error=="+err);  return;}
+
+      if ( !company || company === undefined || company === null) {
+        reason = 'Service Contract Number Not Exist';
+        callback(false , reason);
+        return;
+      }
+
+      var today = new Date();
+      if(company.date_fin.getTime() < today ){
+        reason = 'Contract is dead';
+        callback(false , reason);
+        return;
+      }
+    });
+
     callback(true , reason);
   });
-
 }
+function newUserOnLineNotif(username) {
+  console.log("SS : newUserOnLineNotif");
+  User.getUserByUsername(username, function (err, user) {
+    user.contacts.forEach(function(contact)){
+      if(listOfUsers[contact]){
+        listOfUsers[contact].sockets.forEach(function(ContactSocket) {
+          ContactSocket.emit('UsersOnLine',username);
+        });
+      }
+    }
+  });
+}
+function sendListContacts(userSoket){
+  console.log("SS : sendListContacts");
+  User.getUserByUsername(userSoket.userid, function (err, user) {
+    contactsOnLine = [];
+    user.contacts.forEach(function(contact)){
+      if(onLineUsers.includes(contact)){
+        contactsOnLine.push(contact);
+      }
+    }
 
+    console.log("SS : ListOfContacts ---> ");
+    console.log(user.contacts+" --- online : "+contactsOnLine);
+
+    userSoket.emit('ListContacts',user.contacts);
+    userSoket.emit('ListContactsOnLine',contactsOnLine);
+  });
+}
 
 var listOfRTCUsers = {}; //in RTC Session
 var listOfUsers = {}; // simple session
 var onLineUsers = [];
-var mutex = false ;
+var mutex = false ; // TODO
 
 
 var shiftedModerationControls = {};
@@ -116,7 +165,7 @@ module.exports = exports = function(app, socketCallback) {
 
 
     function simpleSocket(newSocket){
-
+      console.log(" SS : simpleSocket ");
       appendUser(newSocket);
       var params = newSocket.handshake.query;
       var userid = params.userid;
@@ -129,7 +178,8 @@ module.exports = exports = function(app, socketCallback) {
 
       console.log( " Connect ------------------- > "+ userid + " -------------------------- > "+listOfUsers[userid].sockets.length);
 
-      io.sockets.emit('UsersOnLine',onLineUsers,listOfUsers[newSocket.userid].sockets.length);
+      sendListContacts(newSocket);
+      newUserOnLineNotif(userid);
 
       newSocket.on('openDataChannel',function(caller , recever){
         if(!!listOfUsers[recever] && !!listOfUsers[recever].sockets && listOfUsers[recever].sockets.length > 0 ){
@@ -139,7 +189,6 @@ module.exports = exports = function(app, socketCallback) {
                   if(ReceverSocket) ReceverSocket.emit('wantToChat',caller);
                 });
              }
-          
         }
         else {
           //if(!!listOfUsers[caller] && !!listOfUsers[caller].sockets && listOfUsers[caller].sockets.length > 0 ){
@@ -149,11 +198,12 @@ module.exports = exports = function(app, socketCallback) {
                     if(callerSocket) callerSocket.emit('userOffLine',recever);
                 });
                }
-            
+
           //}
           console.log('No '+recever+' Socket to Call him !!!');
         }
       });
+
       newSocket.on('chatResponse',function(caller,recever,accepted,roomid){
         if(!!listOfUsers[caller] && listOfUsers[caller].sockets){
           caller = listOfUsers[caller];
@@ -176,7 +226,7 @@ module.exports = exports = function(app, socketCallback) {
                   if(ReceverSocket) ReceverSocket.emit('inCammingCall',caller,video);
                 });
              }
-          
+
         }
         else {
           if(!!listOfUsers[caller] && !!listOfUsers[caller].sockets && listOfUsers[caller].sockets.length > 0 ){
@@ -186,13 +236,11 @@ module.exports = exports = function(app, socketCallback) {
                     callerSocket.emit('userOffLine',recever);
                 });
                }
-            
+
           }
           console.log('No '+recever+' Socket to Call him !!!');
         }
       });
-
-
 
       newSocket.on('setResponse',function(caller,recever,accepted,roomid){
         if(!!listOfUsers[caller] && listOfUsers[caller].sockets){
@@ -208,7 +256,6 @@ module.exports = exports = function(app, socketCallback) {
         }
       });
 
-
       newSocket.on('disconnect', function() {
         if(!!listOfUsers[newSocket.userid] &&  !!listOfUsers[newSocket.userid].sockets){
           console.log( "disconnect ------------------- > "+ newSocket.userid + " -------------------------- > "+listOfUsers[userid].sockets.length);
@@ -223,7 +270,6 @@ module.exports = exports = function(app, socketCallback) {
 
       });
 
-
       newSocket.on('cancelCall',function(recever){
         if(!!listOfUsers[recever] && !!listOfUsers[recever].sockets && listOfUsers[recever].sockets.length > 0 ){
           recever = listOfUsers[recever];
@@ -235,30 +281,17 @@ module.exports = exports = function(app, socketCallback) {
         }
       });
 
-      //@R.GRID
-      function call(message){
-
-      }
-
-
     }
 
 
-    // each user can open multiSokets
+    // each user can open a Single Soket
     function appendUser(newSocket){
       var params = newSocket.handshake.query;
       var userid = params.userid;
       newSocket.userid = userid ;
-      // each user can open multiSokets
-      // not empty
-      if(!!listOfUsers[userid] &&  !!listOfUsers[userid].sockets ) {
-        listOfUsers[userid].sockets.push(newSocket);
-      }else { // empty
-        listOfUsers[userid] = {
-          sockets : [newSocket]
-        }
+      listOfUsers[userid] = {
+        sockets : [newSocket]
       }
-      console.log(userid+' appended ---------> '+ listOfUsers[userid].sockets.length )
     }
 
 
@@ -287,7 +320,7 @@ module.exports = exports = function(app, socketCallback) {
         }
 
         socket.userid = params.userid;
-        appendUserUnique(socket);
+        appendUserToRTCList(socket);
 
         if (autoCloseEntireSession == 'false' && Object.keys(listOfRTCUsers).length == 1) {
             socket.shiftModerationControlBeforeLeaving = true;
@@ -391,7 +424,7 @@ module.exports = exports = function(app, socketCallback) {
                 }
 
                 socket.userid = newUserId;
-                appendUserUnique(socket);
+                appendUserToRTCList(socket);
 
                 callback();
             } catch (e) {
@@ -518,7 +551,7 @@ module.exports = exports = function(app, socketCallback) {
                     inviteTheseUsers.push(usersInARoom[key]);
                 });
                }
-            
+
 
             var keepUnique = [];
             if(inviteTheseUsers){
@@ -693,7 +726,7 @@ module.exports = exports = function(app, socketCallback) {
     }
 
 
-    function appendUserUnique(socket) {
+    function appendUserToRTCList(socket) {
         var alreadyExist = listOfRTCUsers[socket.userid];
         var extra = {};
 

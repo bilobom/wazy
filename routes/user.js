@@ -4,6 +4,7 @@ function init(router) {
 	var LocalStrategy = require('passport-local').Strategy;
 
 	var User = require('../models/usersModel');
+	var Company = require('../models/companyModel');
 
 	// Register
 	router.get('/register', function (req, res) {
@@ -51,25 +52,19 @@ function init(router) {
 	}
 
 	//@BILAL END
-	// Login
-	router.get('/call', function (req, res) {
-			res.render('call')
-	});
 
 
 	// Register User
 	router.post('/registermobile', function (req, res) {
-		console.log("post reeq*******************************************"+require('circular-json').stringify(req.body));
 		var name = req.body.name;
 		var email = req.body.email;
 		var username = req.body.username;
 		var password2 = req.body.password2;
 		var password = req.body.password;
 		var SCN = req.body.SCN;
-		var company = req.body.company;
-		var lastName = req.body.lastName;
+
 		console.log("name"+name);
-		
+
 		// Validation
 		req.checkBody('name', 'Name is required').notEmpty();
 		req.checkBody('company', 'Campany Name is required').notEmpty();
@@ -98,29 +93,45 @@ function init(router) {
 						return res.json({ success: 'false', reason:[{msg:'UserAlreadyTaken',param:'username'}]});
 					}else if(mail) return res.json({ success: 'false', reason:[{msg:'EmailAlreadyTaken',param:'email'}]});
 					else {
-						generateToken(function(accestoken,err){
-							var newUser = new User({
-								name: name,
-								email: email,
-								username: username,
-								password: password,
-								token : accestoken,
-								SCN: SCN,
-								campany : company,
-								lastName: lastName
+						Console.log("--------------- routes / user : Line 96 -------------");
+						Company.getCompanyBySCN(SCN,function(err,company){
+							if(err || !company) return res.json({ success: 'false', reason:[{msg:'SCN non Valide',param:'SCN'}]});
+
+							var today = new Date();
+				      if(company.date_fin.getTime() < today ){
+				        return res.json({ success: 'false', reason:[{msg:'contract is dead',param:'SCN'}]});
+				      }
+
+							Console.log("--------------- routes / user : Line 105 -------------");
+							generateToken(function(accestoken,err){
+								var newUser = new User({
+									name: name,
+									email: email,
+									username: username,
+									password: password,
+									token : accestoken,
+									SCN: SCN,
+									contacts : company.employs;
+								});
+								User.createUser(newUser, function (err, user) {
+									if (err) { console.log(err); return ; }
+									user.contacts.forEach(function(contact){
+										User.addContact(contact,user.username);
+									});
+									Company.addEmploy(company,user);
+									return res.json({ success: 'true'});
+									console.log('----------------------------------->'+user);
+								});
 							});
-							User.createUser(newUser, function (err, user) {
-								if (err) throw err;
-								console.log('----------------------------------->'+user);
-							});
-		         	
-							return res.json({ success: 'true'});
 						});
 					}
 				});
 			});
 		}
 	});
+
+
+
 	router.post('/register', function (req, res) {
 		console.log("post reeq*******************************************"+require('circular-json').stringify(req.body));
 		var name = req.body.name;
@@ -169,7 +180,7 @@ function init(router) {
 								token : accestoken
 							});
 							User.createUser(newUser, function (err, user) {
-								if (err) throw err;
+								if (err) { console.log(err); return;}
 								console.log('----------------------------------->'+user);
 							});
 		         	req.flash('success_msg', 'You are registered and can now login');
