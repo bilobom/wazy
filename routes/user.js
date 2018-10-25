@@ -93,7 +93,7 @@ function init(router) {
 						return res.json({ success: 'false', reason:[{msg:'UserAlreadyTaken',param:'username'}]});
 					}else if(mail) return res.json({ success: 'false', reason:[{msg:'EmailAlreadyTaken',param:'email'}]});
 					else {
-						Console.log("--------------- routes / user : Line 96 -------------");
+						console.log("--------------- routes / user : Line 96 -------------");
 						Company.getCompanyBySCN(SCN,function(err,company){
 							if(err || !company) return res.json({ success: 'false', reason:[{msg:'SCN non Valide',param:'SCN'}]});
 
@@ -102,7 +102,7 @@ function init(router) {
 				        return res.json({ success: 'false', reason:[{msg:'contract is dead',param:'SCN'}]});
 				      }
 
-							Console.log("--------------- routes / user : Line 105 -------------");
+							console.log("--------------- routes / user : Line 105 -------------");
 							generateToken(function(accestoken,err){
 								var newUser = new User({
 									name: name,
