@@ -11,8 +11,8 @@ var UserSchema = mongoose.Schema({
 		type: String
 	},
   email: {
-		type: String
-    index:true
+		type: String,
+    		index:true
 	},
 	password: {
 		type: String
