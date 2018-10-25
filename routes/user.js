@@ -111,7 +111,7 @@ function init(router) {
 									password: password,
 									token : accestoken,
 									SCN: SCN,
-									contacts : company.employs;
+									contacts : company.employs
 								});
 								User.createUser(newUser, function (err, user) {
 									if (err) { console.log(err); return ; }
