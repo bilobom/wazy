@@ -57,7 +57,7 @@ module.exports.comparePassword = function(candidatePassword, hash, callback){
 	});
 }
 
-module.exports.addContacts = function(username , contact , callback){
+module.exports.addContact = function(username , contact , callback){
 	callback = callback || function(){};
 	var query = {username: username};
 	User.findOne(query,function(err , user){
