@@ -60,24 +60,24 @@ function checkingUserAccess(username , accessToken , callback ) {
 function newUserOnLineNotif(username) {
   console.log("SS : newUserOnLineNotif");
   User.getUserByUsername(username, function (err, user) {
-    user.contacts.forEach(function(contact)){
+    user.contacts.forEach(function(contact){
       if(listOfUsers[contact]){
         listOfUsers[contact].sockets.forEach(function(ContactSocket) {
           ContactSocket.emit('UsersOnLine',username);
         });
       }
-    }
+    });
   });
 }
 function sendListContacts(userSoket){
   console.log("SS : sendListContacts");
   User.getUserByUsername(userSoket.userid, function (err, user) {
     contactsOnLine = [];
-    user.contacts.forEach(function(contact)){
+    user.contacts.forEach(function(contact){
       if(onLineUsers.includes(contact)){
         contactsOnLine.push(contact);
       }
-    }
+    });
 
     console.log("SS : ListOfContacts ---> ");
     console.log(user.contacts+" --- online : "+contactsOnLine);
