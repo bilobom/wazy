@@ -25,7 +25,7 @@ function checkingUserAccess(username , accessToken , callback ) {
       return;
     }
 
-    if( !user.token || user.token == null || user.token == undefined || user.token !== SocketAccessToken ){
+    if( !user.token || user.token == null || user.token == undefined || user.token !== accessToken ){
       reason = 'Access Token Non Valide';
       callback(false , reason);
       return;
