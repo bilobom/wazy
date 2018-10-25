@@ -35,7 +35,7 @@ module.exports.createCompany = function(newCompany, callback){
 }
 
 module.exports.getCompanyBySCN = function(SCN , callback){
-	Console.log("companyModel : getCompanyBySCN ");
+	console.log("companyModel : getCompanyBySCN ");
 	callback = callback || function () {};
 	var query = {SCN:SCN};
 	Company.findOne(query, callback);
@@ -54,7 +54,7 @@ module.exports.getCompanyById = function(id, callback){
 }
 
 module.exports.addEmploy = function(company , employ , callback){
-	Console.log("companyModel : addEmploy ");
+	console.log("companyModel : addEmploy ");
   callback = callback || function () {};
 
 	company.employs.push(employ);
