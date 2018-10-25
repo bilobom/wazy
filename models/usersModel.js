@@ -20,7 +20,7 @@ var UserSchema = mongoose.Schema({
 	token : {
 		type: String
 	},
-  CSN : {
+  SCN : {
 		type: String
 	},
   contacts : [{
