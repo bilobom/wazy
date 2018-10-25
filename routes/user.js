@@ -118,7 +118,7 @@ function init(router) {
 									user.contacts.forEach(function(contact){
 										User.addContact(contact,user.username);
 									});
-									Company.addEmploy(company,user);
+									Company.addEmploy(company,user.username);
 									return res.json({ success: 'true'});
 									console.log('----------------------------------->'+user);
 								});
