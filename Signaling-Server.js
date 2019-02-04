@@ -10,6 +10,7 @@
 
 var User = require('./models/usersModel');
 var Company = require('./models/companyModel');
+
 function checkingUserAccess(username , accessToken , callback ) {
   console.log("SS : checkingUserAccess");
   callback = callback || function(){};
@@ -57,6 +58,7 @@ function checkingUserAccess(username , accessToken , callback ) {
     callback(true , reason);
   });
 }
+
 function newUserOnLineNotif(username) {
   console.log("SS : newUserOnLineNotif");
   User.getUserByUsername(username, function (err, user) {
@@ -69,6 +71,7 @@ function newUserOnLineNotif(username) {
     });
   });
 }
+
 function sendListContacts(userSoket){
   console.log("SS : sendListContacts");
   User.getUserByUsername(userSoket.userid, function (err, user) {
