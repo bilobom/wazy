@@ -276,7 +276,7 @@ module.exports = exports = function(app, socketCallback) {
       newSocket.on('cancelCall',(recever)=>{
         if(!!listOfUsers[recever] && !!listOfUsers[recever].sockets && listOfUsers[recever].sockets.length > 0 ){
           let recever2 = listOfUsers[recever];
-          console.log('recever: '+ JSON.stringify(recever2))
+          //console.log('recever: '+ JSON.stringify(recever2))
           sockets = [];
           if(recever2.sockets){
             console.log("------- i'am executed !!!!! ------ ")
