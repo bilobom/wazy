@@ -273,16 +273,16 @@ module.exports = exports = function(app, socketCallback) {
 
       });
 
-      /*newSocket.on('cancelCall',function(recever){
+      newSocket.on('cancelCall',(recever)=>{
         if(!!listOfUsers[recever] && !!listOfUsers[recever].sockets && listOfUsers[recever].sockets.length > 0 ){
-          recever = listOfUsers[recever];
-          if(recever.sockets){
-            recever.sockets.forEach(function(ReceverSocket) {
-              if(ReceverSocket) ReceverSocket.emit('cancelCall',recever);
+          let recever2 = listOfUsers[recever];
+          if(recever2.sockets){
+            recever2.sockets.forEach(function(ReceverSocket) {
+              if(ReceverSocket) ReceverSocket.emit('cancelCall',recever2);
             });
           }
         }
-      });*/
+      });
 
     }
 
