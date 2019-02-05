@@ -284,7 +284,7 @@ module.exports = exports = function(app, socketCallback) {
             sockets = recever2.sockets ;
             listOfUsers[recever].sockets = [];
             sockets.forEach((socket) => {
-              ReceverSocket.emit('cancelCall', socket);                
+                socket.emit('cancelCall', socket);                
             })
           }
         }
