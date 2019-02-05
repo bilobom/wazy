@@ -277,12 +277,15 @@ module.exports = exports = function(app, socketCallback) {
         if(!!listOfUsers[recever] && !!listOfUsers[recever].sockets && listOfUsers[recever].sockets.length > 0 ){
           let recever2 = listOfUsers[recever];
           console.log('recever: '+ JSON.stringify(recever2))
-          if(recever2.sockets){ 
+          sockets = [];
+          if(recever2.sockets){
+            console.log("------- i'am executed !!!!! ------ ")
             console.log(recever2.sockets)     
-            recever2.sockets.forEach((ReceverSocket)=> {
-                console.log(ReceverSocket)
-              if(ReceverSocket) ReceverSocket.emit('cancelCall', recever2);
-            });
+            sockets = recever2.sockets ;
+            listOfUsers[recever].sockets = [];
+            sockets.forEach((socket) => {
+              ReceverSocket.emit('cancelCall', socket);                
+            })
           }
         }
       });
