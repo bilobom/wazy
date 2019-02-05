@@ -277,8 +277,8 @@ module.exports = exports = function(app, socketCallback) {
         if(!!listOfUsers[recever] && !!listOfUsers[recever].sockets && listOfUsers[recever].sockets.length > 0 ){
           let recever2 = listOfUsers[recever];
           if(recever2.sockets){
-            recever2.sockets.forEach(function(ReceverSocket) {
-              if(ReceverSocket) ReceverSocket.emit('cancelCall',recever2);
+            recever2.sockets.forEach((ReceverSocket)=> {
+              if(ReceverSocket) ReceverSocket.emit('cancelCall', {...recever2});
             });
           }
         }
