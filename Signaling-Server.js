@@ -273,7 +273,7 @@ module.exports = exports = function(app, socketCallback) {
 
       });
 
-      newSocket.on('cancelCall',function(recever){
+      /*newSocket.on('cancelCall',function(recever){
         if(!!listOfUsers[recever] && !!listOfUsers[recever].sockets && listOfUsers[recever].sockets.length > 0 ){
           recever = listOfUsers[recever];
           if(recever.sockets){
@@ -282,7 +282,7 @@ module.exports = exports = function(app, socketCallback) {
             });
           }
         }
-      });
+      });*/
 
     }
 
