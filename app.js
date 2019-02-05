@@ -4,6 +4,8 @@ var exphbs = require('express-handlebars');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
+
 var expressValidator = require('express-validator');
 var bodyParser = require('body-parser');
 // security
@@ -61,9 +63,10 @@ app.use(cookieParser());
 //Session handler
 app.use(require('express-session')({
     //secret: 'keyboard cat',
-    secret: 'secret',
+    secret: 'Rgrid..Boom',
     resave: true,
-    saveUninitialized: true
+    saveUninitialized: true,
+    store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
 
 
